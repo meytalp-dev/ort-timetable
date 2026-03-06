@@ -14,7 +14,7 @@
         }
         body { 
             font-family: 'Assistant', sans-serif; 
-            background-color: #f1f5f9;
+            background-color: #f8fafc;
         }
         .ort-gradient { 
             background: linear-gradient(135deg, var(--ort-blue) 0%, var(--ort-dark) 100%); 
@@ -32,35 +32,42 @@
             transform: translateY(-2px);
         }
         .lesson-card {
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .lesson-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
         }
     </style>
 </head>
-<body class="min-h-screen pb-10">
+<body class="min-h-screen pb-20">
 
     <header class="ort-gradient text-white pt-12 pb-24 px-6 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
         <div class="max-w-4xl mx-auto relative z-10 flex flex-col items-center text-center">
             <div class="bg-white p-2 rounded-xl mb-4 shadow-lg">
                 <span class="text-blue-900 font-bold text-xl px-2">אורט בית הערבה</span>
             </div>
-            <h1 class="text-3xl md:text-4xl font-black mb-2">פורטל למידה דיגיטלי</h1>
-            <p class="text-blue-100/80 font-medium italic">מערכת שעות אינטראקטיבית - יום ראשון</p>
+            <h1 class="text-4xl font-black mb-2 tracking-tight">פורטל מערכת השעות</h1>
+            <p class="text-blue-100/80 font-medium">יום ראשון - למידה מרחוק</p>
         </div>
     </header>
 
     <main class="max-w-4xl mx-auto px-4 -mt-12 relative z-20">
-        <div class="glass-card rounded-3xl p-6 shadow-xl mb-8">
+        <!-- Class Selector -->
+        <div class="glass-card rounded-3xl p-6 shadow-xl mb-8 border border-white">
             <h2 class="text-slate-800 font-bold mb-4 flex items-center gap-2 text-lg">
                 <span class="w-1.5 h-6 bg-orange-500 rounded-full"></span>
-                בחר כיתה להצגת מערכת:
+                בחר כיתה:
             </h2>
-            <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar" id="class-tabs"></div>
+            <div class="flex gap-3 overflow-x-auto pb-4 no-scrollbar" id="class-tabs"></div>
         </div>
 
-        <div id="lessons-container" class="space-y-4"></div>
+        <!-- Lessons Container -->
+        <div id="lessons-container" class="space-y-6"></div>
     </main>
 
     <script>
+        // מיפוי קישורים מלא מה-CSV
         const teacherLinks = {
             'אופירה מלכה': 'https://edu-il.zoom.us/j/2026881653',
             'מנו דהאן': 'https://edu-il.zoom.us/j/86927082525?pwd=8nMIngwn00JP7OhbuZICVMKvPoTErd.1',
@@ -69,56 +76,76 @@
             'אפרת בר אשר': 'https://zoom.us/j/5279673102?pwd=znspSkx8NypgYY7sDCmkB4Xz7qo6hO.1',
             'בת שבע אדלר': 'https://meet.google.com/gpe-hcte-zbh?authuser=4&pli=1',
             'יוסי רובבשי': 'https://edu-il.zoom.us/j/7562737216?omn=84003831557',
+            'מלי נמיר': 'https://edu-il.zoom.us/j/8301084260',
             'משה צברי': 'https://edu-il.zoom.us/j/4769931846',
             'פרלה שאזו': 'https://edu-il.zoom.us/j/7161748287',
             'רעיה יצחקי': 'https://edu-il.zoom.us/j/5717366311',
-            'שי בגלר': '', 
-            
-            'משה': 'https://edu-il.zoom.us/j/4769931846',
-            'רעיה': 'https://edu-il.zoom.us/j/5717366311',
-            'אופירה': 'https://edu-il.zoom.us/j/2026881653'
+            'שי בגלר': '', // להזין אם קיים
+            'אושר אהרוני': '',
+            'ויקי קלדרון': '',
+            'נעמה': '',
+            'מירב בטיטו': ''
         };
 
-        // הגדרת המגמות
         const specialTracks = [
-            { name: 'אוטוטרוניקה', teacher: 'יוסי רובבשי' },
-            { name: 'מחשבים', teacher: 'שי בגלר' },
-            { name: 'עיצוב שיער', teacher: '' }
+            { track: 'אוטוטרוניקה', teacher: 'יוסי רובבשי' },
+            { track: 'מחשבים', teacher: 'שי בגלר' },
+            { track: 'עיצוב שיער', teacher: '' }
         ];
 
         const schedule = {
             'ט1': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{name: 'חינוך', teacher: 'משה'}] },
-                { time: '10:45-11:30', subject: 'מתמטיקה', teachers: [{name: 'מתמטיקה', teacher: 'אושר אהרוני'}] },
-                { time: '12:00-12:45', subject: 'תנ"ך', teachers: [{name: 'תנ"ך', teacher: 'משה'}] }
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'משה צברי' }] },
+                { time: '10:45-11:30', subject: 'מתמטיקה', teachers: [{ teacher: 'אושר אהרוני' }] },
+                { time: '12:00-12:45', subject: 'תנ"ך', teachers: [{ teacher: 'משה צברי' }] }
             ],
             'ט2': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{name: 'חינוך', teacher: 'אושר אהרוני'}] },
-                { time: '10:45-11:30', subject: 'מתמטיקה', teachers: [{name: 'מתמטיקה', teacher: 'אושר אהרוני'}] },
-                { time: '12:00-12:45', subject: 'תנ"ך', teachers: [{name: 'תנ"ך', teacher: 'משה'}] }
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'אושר אהרוני' }] },
+                { time: '10:45-11:30', subject: 'מתמטיקה', teachers: [{ teacher: 'אושר אהרוני' }] },
+                { time: '12:00-12:45', subject: 'תנ"ך', teachers: [{ teacher: 'משה צברי' }] }
             ],
             'י1': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{name: 'חינוך', teacher: 'רעיה'}] },
-                { time: '10:45-11:30', subject: 'היסטוריה', teachers: [{name: 'היסטוריה', teacher: 'רעיה יצחקי'}] },
-                { time: '12:00-12:45', subject: 'מתמטיקה', teachers: [{name: 'מתמטיקה', teacher: 'נעמה'}] }
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'רעיה יצחקי' }] },
+                { time: '10:45-11:30', subject: 'היסטוריה', teachers: [{ teacher: 'רעיה יצחקי' }] },
+                { time: '12:00-12:45', subject: 'מתמטיקה', teachers: [{ teacher: 'נעמה' }] }
+            ],
+            'י2': [
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'אופירה מלכה' }] },
+                { time: '10:45-11:30', subject: 'אזרחות', teachers: [{ teacher: 'משה צברי' }] },
+                { time: '12:00-12:45', subject: 'עברית', teachers: [{ teacher: 'מירב בטיטו' }] }
+            ],
+            'י3': [
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'פרלה שאזו' }] },
+                { time: '10:45-11:30', subject: 'עברית', teachers: [{ teacher: 'מירב בטיטו' }] },
+                { time: '12:00-12:45', subject: 'ספרות', teachers: [{ teacher: 'רעיה יצחקי' }] }
             ],
             'יא1': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{name: 'חינוך', teacher: 'אפרת בר אשר'}] },
-                { time: '10:45-11:30', subject: 'תנ"ך', teachers: [{name: 'תנ"ך', teacher: 'אליאל קוסקאס'}] },
-                { time: '12:00-12:45', subject: 'מתמטיקה', teachers: [{name: 'מתמטיקה', teacher: 'רווית'}] }
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'אפרת בר אשר' }] },
+                { time: '10:45-11:30', subject: 'תנ"ך', teachers: [{ teacher: 'אליאל קוסקאס' }] },
+                { time: '12:00-12:45', subject: 'מתמטיקה', teachers: [{ teacher: 'רווית גל' }] }
+            ],
+            'יא2': [
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'נעמה' }] },
+                { time: '10:45-11:30', subject: 'מתמטיקה', teachers: [{ teacher: 'נעמה' }] },
+                { time: '12:00-12:45', subject: 'עברית', teachers: [{ teacher: 'אושר אהרוני' }] }
+            ],
+            'יא3': [
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'ליאת רוזנר' }] },
+                { time: '10:45-11:30', subject: 'מתמטיקה', teachers: [{ teacher: 'ויקי קלדרון' }] },
+                { time: '12:00-12:45', subject: 'תנ"ך', teachers: [{ teacher: 'אליאל קוסקאס' }] }
             ],
             'יב1': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{name: 'חינוך', teacher: 'יוסי רובבשי'}] },
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'יוסי רובבשי' }] },
                 { time: '10:45-11:30', subject: 'מגמות', teachers: specialTracks },
                 { time: '12:00-12:45', subject: 'מגמות', teachers: specialTracks }
             ],
             'יב2': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{name: 'חינוך', teacher: 'משה'}] },
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'משה צברי' }] },
                 { time: '10:45-11:30', subject: 'מגמות', teachers: specialTracks },
                 { time: '12:00-12:45', subject: 'מגמות', teachers: specialTracks }
             ],
             'יב3': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{name: 'חינוך', teacher: 'מנו דהאן'}] },
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'מנו דהאן' }] },
                 { time: '10:45-11:30', subject: 'מגמות', teachers: specialTracks },
                 { time: '12:00-12:45', subject: 'מגמות', teachers: specialTracks }
             ]
@@ -131,7 +158,7 @@
             tabsContainer.innerHTML = '';
             Object.keys(schedule).forEach(cls => {
                 const btn = document.createElement('button');
-                btn.className = `btn-class px-6 py-2.5 rounded-xl font-bold transition-all whitespace-nowrap bg-white text-slate-600 shadow-sm border border-slate-100 ${cls === currentClass ? 'active' : ''}`;
+                btn.className = `btn-class px-6 py-2.5 rounded-2xl font-black transition-all whitespace-nowrap bg-white text-slate-500 shadow-sm border border-slate-100 ${cls === currentClass ? 'active' : ''}`;
                 btn.innerText = cls;
                 btn.onclick = () => { currentClass = cls; render(); };
                 tabsContainer.appendChild(btn);
@@ -142,45 +169,45 @@
             
             (schedule[currentClass] || []).forEach(lesson => {
                 const card = document.createElement('div');
-                card.className = "lesson-card bg-white p-5 rounded-2xl shadow-md border-r-4 border-blue-800 flex flex-col md:flex-row md:items-center justify-between gap-4";
+                card.className = "lesson-card bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-6";
                 
                 let teachersHTML = lesson.teachers.map(t => {
                     const teacherName = t.teacher;
-                    if (!teacherName) {
-                        return `
-                            <div class="flex flex-col gap-2 min-w-[120px] opacity-50">
-                                <span class="text-[10px] text-slate-400 font-bold uppercase">${t.name}</span>
-                                <div class="bg-slate-100 text-slate-400 px-4 py-2 rounded-lg text-xs font-bold text-center italic">
-                                    טרם נקבע
-                                </div>
-                            </div>
-                        `;
-                    }
+                    const trackName = t.track || "";
                     const link = teacherLinks[teacherName] || '';
                     const hasLink = link !== '';
+                    
+                    if (!teacherName && trackName) {
+                        return `<div class="p-4 bg-slate-50 rounded-3xl border border-slate-100 flex-1 min-w-[150px] opacity-60">
+                                    <span class="text-[10px] font-black text-blue-900 block uppercase mb-1">${trackName}</span>
+                                    <span class="text-xs font-bold text-slate-400 italic">טרם נקבע</span>
+                                </div>`;
+                    }
+
                     return `
-                        <div class="flex flex-col gap-2 min-w-[140px]">
-                            <span class="text-[10px] text-slate-400 font-bold uppercase">${t.name}</span>
-                            <span class="text-xs text-slate-700 font-bold -mt-1">${teacherName}</span>
-                            <a href="${hasLink ? link : '#'}" target="_blank" class="${hasLink ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-100' : 'bg-slate-200 cursor-not-allowed text-slate-500'} text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md">
-                                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                                <span>${hasLink ? 'זום' : 'אין קישור'}</span>
+                        <div class="p-4 bg-slate-50 rounded-3xl border border-slate-100 flex-1 min-w-[180px]">
+                            ${trackName ? `<span class="text-[10px] font-black text-blue-600 block uppercase mb-1">${trackName}</span>` : ''}
+                            <span class="text-sm font-bold text-slate-700 block mb-3">מורה: ${teacherName}</span>
+                            <a href="${hasLink ? link : '#'}" target="_blank" 
+                               class="${hasLink ? 'bg-blue-600 hover:bg-blue-700 shadow-md' : 'bg-slate-300 cursor-not-allowed'} text-white w-full py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-transform active:scale-95">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                                <span>${hasLink ? 'התחברות לזום' : 'אין קישור'}</span>
                             </a>
                         </div>
                     `;
                 }).join('');
 
                 card.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <div class="bg-blue-50 text-blue-900 p-3 rounded-xl text-center min-w-[90px]">
-                            <p class="text-[10px] font-bold opacity-60 uppercase tracking-tighter">זמן שיעור</p>
-                            <p class="font-black text-lg">${lesson.time}</p>
+                    <div class="flex items-center gap-5">
+                        <div class="bg-blue-50 text-blue-900 px-5 py-4 rounded-[1.8rem] text-center min-w-[100px] border border-blue-100">
+                            <p class="text-[10px] font-black opacity-50 uppercase mb-1">שעה</p>
+                            <p class="font-black text-xl tracking-tighter">${lesson.time}</p>
                         </div>
                         <div>
-                            <h3 class="text-xl font-extrabold text-slate-800">${lesson.subject}</h3>
+                            <h3 class="text-2xl font-black text-slate-800">${lesson.subject}</h3>
                         </div>
                     </div>
-                    <div class="flex flex-wrap gap-4 items-end bg-slate-50/50 p-3 rounded-xl">
+                    <div class="flex flex-wrap gap-3 w-full md:w-auto">
                         ${teachersHTML}
                     </div>
                 `;
