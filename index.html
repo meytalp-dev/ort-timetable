@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת שעות - אורט בית הערבה</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ort-blue: #003399;
+            --ort-dark: #001a4d;
+            --ort-orange: #f39200;
+        }
+        body { 
+            font-family: 'Assistant', sans-serif; 
+            background-color: #f1f5f9;
+        }
+        .ort-gradient { 
+            background: linear-gradient(135deg, var(--ort-blue) 0%, var(--ort-dark) 100%); 
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .btn-class.active {
+            background-color: var(--ort-orange);
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(243, 146, 0, 0.4);
+            transform: translateY(-2px);
+        }
+        .lesson-card {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-10">
+
+    <header class="ort-gradient text-white pt-12 pb-24 px-6 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
+        <div class="max-w-4xl mx-auto relative z-10 flex flex-col items-center text-center">
+            <div class="bg-white p-2 rounded-xl mb-4 shadow-lg">
+                <span class="text-blue-900 font-bold text-xl px-2">אורט בית הערבה</span>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-black mb-2">פורטל למידה דיגיטלי</h1>
+            <p class="text-blue-100/80 font-medium italic">מערכת שעות אינטראקטיבית - יום ראשון</p>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 -mt-12 relative z-20">
+        <div class="glass-card rounded-3xl p-6 shadow-xl mb-8">
+            <h2 class="text-slate-800 font-bold mb-4 flex items-center gap-2 text-lg">
+                <span class="w-1.5 h-6 bg-orange-500 rounded-full"></span>
+                בחר כיתה להצגת מערכת:
+            </h2>
+            <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar" id="class-tabs"></div>
+        </div>
+
+        <div id="lessons-container" class="space-y-4"></div>
+    </main>
+
+    <script>
+        const teacherLinks = {
+            'אופירה מלכה': 'https://edu-il.zoom.us/j/2026881653',
+            'מנו דהאן': 'https://edu-il.zoom.us/j/86927082525?pwd=8nMIngwn00JP7OhbuZICVMKvPoTErd.1',
+            'רוית גל': 'https://meet.google.com/acg-ibui-cfk',
+            'אליאל קוסקאס': 'https://edu-il.zoom.us/j/8407657472',
+            'אפרת בר אשר': 'https://zoom.us/j/5279673102?pwd=znspSkx8NypgYY7sDCmkB4Xz7qo6hO.1',
+            'בת שבע אדלר': 'https://meet.google.com/gpe-hcte-zbh?authuser=4&pli=1',
+            'יוסי רובבשי': 'https://edu-il.zoom.us/j/7562737216?omn=84003831557',
+            'משה צברי': 'https://edu-il.zoom.us/j/4769931846',
+            'פרלה שאזו': 'https://edu-il.zoom.us/j/7161748287',
+            'רעיה יצחקי': 'https://edu-il.zoom.us/j/5717366311',
+            'שי בגלר': '', 
+            
+            'משה': 'https://edu-il.zoom.us/j/4769931846',
+            'רעיה': 'https://edu-il.zoom.us/j/5717366311',
+            'אופירה': 'https://edu-il.zoom.us/j/2026881653'
+        };
+
+        // הגדרת המגמות
+        const specialTracks = [
+            { name: 'אוטוטרוניקה', teacher: 'יוסי רובבשי' },
+            { name: 'מחשבים', teacher: 'שי בגלר' },
+            { name: 'עיצוב שיער', teacher: '' }
+        ];
+
+        const schedule = {
+            'ט1': [
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{name: 'חינוך', teacher: 'משה'}] },
+                { time: '10:45-11:30', subject: 'מתמטיקה', teachers: [{name: 'מתמטיקה', teacher: 'אושר אהרוני'}] },
+                { time: '12:00-12:45', subject: 'תנ"ך', teachers: [{name: 'תנ"ך', teacher: 'משה'}] }
+            ],
+            'ט2': [
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{name: 'חינוך', teacher: 'אושר אהרוני'}] },
+                { time: '10:45-11:30', subject: 'מתמטיקה', teachers: [{name: 'מתמטיקה', teacher: 'אושר אהרוני'}] },
+                { time: '12:00-12:45', subject: 'תנ"ך', teachers: [{name: 'תנ"ך', teacher: 'משה'}] }
+            ],
+            'י1': [
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{name: 'חינוך', teacher: 'רעיה'}] },
+                { time: '10:45-11:30', subject: 'היסטוריה', teachers: [{name: 'היסטוריה', teacher: 'רעיה יצחקי'}] },
+                { time: '12:00-12:45', subject: 'מתמטיקה', teachers: [{name: 'מתמטיקה', teacher: 'נעמה'}] }
+            ],
+            'יא1': [
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{name: 'חינוך', teacher: 'אפרת בר אשר'}] },
+                { time: '10:45-11:30', subject: 'תנ"ך', teachers: [{name: 'תנ"ך', teacher: 'אליאל קוסקאס'}] },
+                { time: '12:00-12:45', subject: 'מתמטיקה', teachers: [{name: 'מתמטיקה', teacher: 'רווית'}] }
+            ],
+            'יב1': [
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{name: 'חינוך', teacher: 'יוסי רובבשי'}] },
+                { time: '10:45-11:30', subject: 'מגמות', teachers: specialTracks },
+                { time: '12:00-12:45', subject: 'מגמות', teachers: specialTracks }
+            ],
+            'יב2': [
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{name: 'חינוך', teacher: 'משה'}] },
+                { time: '10:45-11:30', subject: 'מגמות', teachers: specialTracks },
+                { time: '12:00-12:45', subject: 'מגמות', teachers: specialTracks }
+            ],
+            'יב3': [
+                { time: '10:00-10:30', subject: 'חינוך', teachers: [{name: 'חינוך', teacher: 'מנו דהאן'}] },
+                { time: '10:45-11:30', subject: 'מגמות', teachers: specialTracks },
+                { time: '12:00-12:45', subject: 'מגמות', teachers: specialTracks }
+            ]
+        };
+
+        let currentClass = 'יב1';
+
+        function render() {
+            const tabsContainer = document.getElementById('class-tabs');
+            tabsContainer.innerHTML = '';
+            Object.keys(schedule).forEach(cls => {
+                const btn = document.createElement('button');
+                btn.className = `btn-class px-6 py-2.5 rounded-xl font-bold transition-all whitespace-nowrap bg-white text-slate-600 shadow-sm border border-slate-100 ${cls === currentClass ? 'active' : ''}`;
+                btn.innerText = cls;
+                btn.onclick = () => { currentClass = cls; render(); };
+                tabsContainer.appendChild(btn);
+            });
+
+            const lessonsContainer = document.getElementById('lessons-container');
+            lessonsContainer.innerHTML = '';
+            
+            (schedule[currentClass] || []).forEach(lesson => {
+                const card = document.createElement('div');
+                card.className = "lesson-card bg-white p-5 rounded-2xl shadow-md border-r-4 border-blue-800 flex flex-col md:flex-row md:items-center justify-between gap-4";
+                
+                let teachersHTML = lesson.teachers.map(t => {
+                    const teacherName = t.teacher;
+                    if (!teacherName) {
+                        return `
+                            <div class="flex flex-col gap-2 min-w-[120px] opacity-50">
+                                <span class="text-[10px] text-slate-400 font-bold uppercase">${t.name}</span>
+                                <div class="bg-slate-100 text-slate-400 px-4 py-2 rounded-lg text-xs font-bold text-center italic">
+                                    טרם נקבע
+                                </div>
+                            </div>
+                        `;
+                    }
+                    const link = teacherLinks[teacherName] || '';
+                    const hasLink = link !== '';
+                    return `
+                        <div class="flex flex-col gap-2 min-w-[140px]">
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">${t.name}</span>
+                            <span class="text-xs text-slate-700 font-bold -mt-1">${teacherName}</span>
+                            <a href="${hasLink ? link : '#'}" target="_blank" class="${hasLink ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-100' : 'bg-slate-200 cursor-not-allowed text-slate-500'} text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md">
+                                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                                <span>${hasLink ? 'זום' : 'אין קישור'}</span>
+                            </a>
+                        </div>
+                    `;
+                }).join('');
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="bg-blue-50 text-blue-900 p-3 rounded-xl text-center min-w-[90px]">
+                            <p class="text-[10px] font-bold opacity-60 uppercase tracking-tighter">זמן שיעור</p>
+                            <p class="font-black text-lg">${lesson.time}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-extrabold text-slate-800">${lesson.subject}</h3>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-4 items-end bg-slate-50/50 p-3 rounded-xl">
+                        ${teachersHTML}
+                    </div>
+                `;
+                lessonsContainer.appendChild(card);
+            });
+        }
+
+        render();
+    </script>
+</body>
+</html>
