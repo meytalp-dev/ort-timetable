@@ -4,64 +4,172 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>מערכת שעות - אורט בית הערבה</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --ort-blue: #003399;
-            --ort-dark: #001a4d;
-            --ort-orange: #f39200;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            padding-bottom: 5rem;
+            direction: rtl;
         }
-        body { 
-            font-family: 'Assistant', sans-serif; 
-            background-color: #f8fafc;
-        }
-        .ort-gradient { 
-            background: linear-gradient(135deg, var(--ort-blue) 0%, var(--ort-dark) 100%); 
-        }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .btn-class.active {
-            background-color: var(--ort-orange);
+        header {
+            background: linear-gradient(135deg, #003399 0%, #001a4d 100%);
             color: white;
-            box-shadow: 0 10px 15px -3px rgba(243, 146, 0, 0.4);
+            padding: 3rem 1.5rem 6rem;
+            border-radius: 0 0 3rem 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            text-align: center;
+        }
+        .logo-box {
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+        .logo-box span { color: #1e3a8a; font-weight: 800; font-size: 1.25rem; }
+        header h1 { font-size: 2.2rem; font-weight: 900; margin-bottom: 0.5rem; }
+        header p { color: rgba(219,234,254,0.8); font-weight: 500; }
+        main { max-width: 900px; margin: -3rem auto 0; padding: 0 1rem; position: relative; z-index: 20; }
+        .class-selector {
+            background: rgba(255,255,255,0.97);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            border: 1px solid white;
+        }
+        .class-selector h2 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .class-selector h2::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 24px;
+            background: #f39200;
+            border-radius: 9999px;
+        }
+        .tabs {
+            display: flex;
+            gap: 0.75rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab-btn {
+            padding: 0.6rem 1.25rem;
+            border-radius: 1rem;
+            font-weight: 900;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            background: white;
+            color: #64748b;
+            border: 1px solid #f1f5f9;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { background: #fff7ed; color: #f39200; }
+        .tab-btn.active {
+            background: #f39200;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(243,146,0,0.4);
             transform: translateY(-2px);
         }
+        .lessons { display: flex; flex-direction: column; gap: 1.25rem; }
         .lesson-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+            border-radius: 2rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+            border: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            transition: all 0.3s;
         }
-        .lesson-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        .lesson-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .lesson-left { display: flex; align-items: center; gap: 1.25rem; }
+        .time-box {
+            background: #eff6ff;
+            color: #1e3a8a;
+            padding: 1rem 1.25rem;
+            border-radius: 1.5rem;
+            text-align: center;
+            min-width: 110px;
+            border: 1px solid #dbeafe;
+        }
+        .time-box .label { font-size: 0.6rem; font-weight: 900; opacity: 0.5; text-transform: uppercase; margin-bottom: 0.25rem; }
+        .time-box .time { font-weight: 900; font-size: 1.1rem; letter-spacing: -0.5px; }
+        .subject-name { font-size: 1.6rem; font-weight: 900; color: #1e293b; }
+        .lesson-right { display: flex; align-items: flex-end; gap: 0.75rem; flex-wrap: wrap; }
+        .teacher-card {
+            background: #f8fafc;
+            border-radius: 1.5rem;
+            padding: 1rem;
+            border: 1px solid #f1f5f9;
+            min-width: 190px;
+        }
+        .track-label { font-size: 0.65rem; font-weight: 900; color: #2563eb; text-transform: uppercase; display: block; margin-bottom: 0.25rem; }
+        .teacher-name { font-size: 0.875rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.75rem; }
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.6rem;
+            border-radius: 0.75rem;
+            font-weight: 900;
+            font-size: 0.75rem;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.15s;
+            color: white;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-zoom { background: #2563eb; }
+        .btn-zoom:hover { background: #1d4ed8; }
+        .btn-zoom-disabled { background: #cbd5e1; cursor: not-allowed; color: white; }
+        .btn-task { background: #f39200; margin-top: 0.5rem; }
+        .btn-task:hover { background: #e08600; }
+        .btn-task-disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; margin-top: 0.5rem; }
+        .assignment-col { width: 160px; }
+        @media (max-width: 640px) {
+            header h1 { font-size: 1.6rem; }
+            .lesson-card { flex-direction: column; align-items: flex-start; }
+            .lesson-right { width: 100%; }
+            .teacher-card { min-width: 0; flex: 1; }
+            .assignment-col { width: 100%; }
         }
     </style>
 </head>
-<body class="min-h-screen pb-20">
-
-    <header class="ort-gradient text-white pt-12 pb-24 px-6 rounded-b-[3rem] shadow-2xl relative overflow-hidden text-center">
-        <div class="max-w-4xl mx-auto relative z-10">
-            <div class="bg-white p-2 rounded-xl mb-4 shadow-lg inline-block">
-                <span class="text-blue-900 font-bold text-xl px-2">אורט בית הערבה</span>
-            </div>
-            <h1 class="text-4xl font-black mb-2 tracking-tight">פורטל מערכת השעות</h1>
-            <p class="text-blue-100/80 font-medium">יום ראשון - למידה מרחוק</p>
-        </div>
+<body>
+    <header>
+        <div class="logo-box"><span>אורט בית הערבה</span></div>
+        <h1>פורטל מערכת השעות</h1>
+        <p>יום ראשון - למידה מרחוק</p>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 -mt-12 relative z-20">
-        <div class="glass-card rounded-3xl p-6 shadow-xl mb-8 border border-white">
-            <h2 class="text-slate-800 font-bold mb-4 flex items-center gap-2 text-lg">
-                <span class="w-1.5 h-6 bg-orange-500 rounded-full"></span>
-                בחר כיתה:
-            </h2>
-            <div class="flex gap-3 overflow-x-auto pb-4 no-scrollbar" id="class-tabs"></div>
+    <main>
+        <div class="class-selector">
+            <h2>בחר כיתה:</h2>
+            <div class="tabs" id="class-tabs"></div>
         </div>
-
-        <div id="lessons-container" class="space-y-6"></div>
+        <div class="lessons" id="lessons-container"></div>
     </main>
 
     <script>
@@ -156,80 +264,72 @@
 
         let currentClass = 'ט1';
 
+        const zoomIcon = `<svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>`;
+        const taskIcon = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`;
+
         function render() {
-            const tabsContainer = document.getElementById('class-tabs');
-            tabsContainer.innerHTML = '';
+            // Render tabs
+            const tabsEl = document.getElementById('class-tabs');
+            tabsEl.innerHTML = '';
             Object.keys(schedule).forEach(cls => {
                 const btn = document.createElement('button');
-                btn.className = `btn-class px-6 py-2.5 rounded-2xl font-black transition-all whitespace-nowrap bg-white text-slate-500 shadow-sm border border-slate-100 ${cls === currentClass ? 'active' : ''}`;
-                btn.innerText = cls;
+                btn.className = 'tab-btn' + (cls === currentClass ? ' active' : '');
+                btn.textContent = cls;
                 btn.onclick = () => { currentClass = cls; render(); };
-                tabsContainer.appendChild(btn);
+                tabsEl.appendChild(btn);
             });
 
-            const lessonsContainer = document.getElementById('lessons-container');
-            lessonsContainer.innerHTML = '';
+            // Render lessons
+            const container = document.getElementById('lessons-container');
+            container.innerHTML = '';
 
             (schedule[currentClass] || []).forEach(lesson => {
                 const card = document.createElement('div');
-                card.className = "lesson-card bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-6";
+                card.className = 'lesson-card';
 
-                const assignmentLink = lesson.assignment || '';
-                const hasAssignment = assignmentLink !== '';
-
-                const assignmentButtonHTML = lesson.assignments
-                    ? lesson.assignments.map((link, i) => `
-                        <a href="${link}" target="_blank"
-                           class="bg-orange-500 hover:bg-orange-600 shadow-md text-white w-full py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 mt-2">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            <span>מטלה ${i + 1}</span>
-                        </a>`).join('')
-                    : `<a href="${hasAssignment ? assignmentLink : '#'}" target="_blank"
-                           class="${hasAssignment ? 'bg-orange-500 hover:bg-orange-600 shadow-md' : 'bg-slate-200 text-slate-400 cursor-not-allowed'} text-white w-full py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-transform active:scale-95 mt-2">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            <span>${hasAssignment ? 'מטלה מקוונת' : 'אין מטלה'}</span>
-                        </a>`;
-
-                let teachersHTML = lesson.teachers.map(t => {
-                    const teacherName = t.teacher;
-                    const trackName = t.track || "";
-                    const link = teacherLinks[teacherName] || '';
-                    const hasLink = link !== '';
-
+                // Teachers HTML
+                const teachersHTML = lesson.teachers.map(t => {
+                    const name = t.teacher || '';
+                    const track = t.track || '';
+                    const link = teacherLinks[name] || '';
                     return `
-                        <div class="p-4 bg-slate-50 rounded-3xl border border-slate-100 flex-1 min-w-[180px]">
-                            ${trackName ? `<span class="text-[10px] font-black text-blue-600 block uppercase mb-1">${trackName}</span>` : ''}
-                            <span class="text-sm font-bold text-slate-700 block mb-3">${teacherName ? 'מורה: ' + teacherName : 'טרם נקבע'}</span>
-                            <a href="${hasLink ? link : '#'}" target="_blank"
-                               class="${hasLink ? 'bg-blue-600 hover:bg-blue-700 shadow-md' : 'bg-slate-300 cursor-not-allowed'} text-white w-full py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-transform active:scale-95">
-                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                                <span>${hasLink ? 'התחברות לזום' : 'אין קישור'}</span>
+                        <div class="teacher-card">
+                            ${track ? `<span class="track-label">${track}</span>` : ''}
+                            <span class="teacher-name">${name ? 'מורה: ' + name : 'טרם נקבע'}</span>
+                            <a href="${link || '#'}" ${link ? 'target="_blank"' : ''} class="btn ${link ? 'btn-zoom' : 'btn-zoom-disabled'}">
+                                ${zoomIcon} <span>${link ? 'התחברות לזום' : 'אין קישור'}</span>
                             </a>
-                        </div>
-                    `;
+                        </div>`;
                 }).join('');
 
+                // Assignment HTML
+                let assignmentHTML = '';
+                if (lesson.subject !== 'חינוך') {
+                    if (lesson.assignments) {
+                        assignmentHTML = lesson.assignments.map((link, i) =>
+                            `<a href="${link}" target="_blank" class="btn btn-task">${taskIcon} <span>מטלה ${i + 1}</span></a>`
+                        ).join('');
+                    } else if (lesson.assignment) {
+                        assignmentHTML = `<a href="${lesson.assignment}" target="_blank" class="btn btn-task">${taskIcon} <span>מטלה מקוונת</span></a>`;
+                    } else {
+                        assignmentHTML = `<a href="#" class="btn btn-task-disabled">${taskIcon} <span>אין מטלה</span></a>`;
+                    }
+                }
+
                 card.innerHTML = `
-                    <div class="flex items-center gap-5">
-                        <div class="bg-blue-50 text-blue-900 px-5 py-4 rounded-[1.8rem] text-center min-w-[100px] border border-blue-100">
-                            <p class="text-[10px] font-black opacity-50 uppercase mb-1">שעה</p>
-                            <p class="font-black text-xl tracking-tighter">${lesson.time}</p>
+                    <div class="lesson-left">
+                        <div class="time-box">
+                            <div class="label">שעה</div>
+                            <div class="time">${lesson.time}</div>
                         </div>
-                        <div class="flex-1">
-                            <h3 class="text-2xl font-black text-slate-800">${lesson.subject}</h3>
-                            ${lesson.subject !== 'חינוך' ? `<div class="md:hidden mt-2">${assignmentButtonHTML}</div>` : ''}
-                        </div>
+                        <div class="subject-name">${lesson.subject}</div>
                     </div>
-                    <div class="flex flex-wrap gap-3 w-full md:w-auto items-end">
-                        <div class="flex gap-3 flex-1 md:flex-none">
-                            ${teachersHTML}
-                        </div>
-                        <div class="hidden md:block w-40">
-                            ${lesson.subject !== 'חינוך' ? assignmentButtonHTML : ''}
-                        </div>
+                    <div class="lesson-right">
+                        ${teachersHTML}
+                        ${assignmentHTML ? `<div class="assignment-col">${assignmentHTML}</div>` : ''}
                     </div>
                 `;
-                lessonsContainer.appendChild(card);
+                container.appendChild(card);
             });
         }
 
