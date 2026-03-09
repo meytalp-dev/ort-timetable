@@ -1,340 +1,1013 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מערכת שעות - אורט בית הערבה</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f8fafc;
-            min-height: 100vh;
-            padding-bottom: 5rem;
-            direction: rtl;
-        }
-        header {
-            background: linear-gradient(135deg, #003399 0%, #001a4d 100%);
-            color: white;
-            padding: 3rem 1.5rem 6rem;
-            border-radius: 0 0 3rem 3rem;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-            text-align: center;
-        }
-        .logo-box {
-            background: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.75rem;
-            display: inline-block;
-            margin-bottom: 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-        }
-        .logo-box span { color: #1e3a8a; font-weight: 800; font-size: 1.25rem; }
-        header h1 { font-size: 2.2rem; font-weight: 900; margin-bottom: 0.5rem; }
-        header p { color: rgba(219,234,254,0.8); font-weight: 500; }
-        main { max-width: 900px; margin: -3rem auto 0; padding: 0 1rem; position: relative; z-index: 20; }
-        .class-selector {
-            background: rgba(255,255,255,0.97);
-            border-radius: 1.5rem;
-            padding: 1.5rem;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-            border: 1px solid white;
-        }
-        .class-selector h2 {
-            font-weight: 700;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-            color: #1e293b;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .class-selector h2::before {
-            content: '';
-            display: inline-block;
-            width: 6px;
-            height: 24px;
-            background: #f39200;
-            border-radius: 9999px;
-        }
-        .tabs {
-            display: flex;
-            gap: 0.75rem;
-            overflow-x: auto;
-            padding-bottom: 0.5rem;
-            scrollbar-width: none;
-        }
-        .tabs::-webkit-scrollbar { display: none; }
-        .tab-btn {
-            padding: 0.6rem 1.25rem;
-            border-radius: 1rem;
-            font-weight: 900;
-            font-size: 0.95rem;
-            white-space: nowrap;
-            background: white;
-            color: #64748b;
-            border: 1px solid #f1f5f9;
-            cursor: pointer;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            transition: all 0.2s;
-        }
-        .tab-btn:hover { background: #fff7ed; color: #f39200; }
-        .tab-btn.active {
-            background: #f39200;
-            color: white;
-            box-shadow: 0 10px 15px -3px rgba(243,146,0,0.4);
-            transform: translateY(-2px);
-        }
-        .lessons { display: flex; flex-direction: column; gap: 1.25rem; }
-        .lesson-card {
-            background: white;
-            border-radius: 2rem;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.07);
-            border: 1px solid #f1f5f9;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1.5rem;
-            flex-wrap: wrap;
-            transition: all 0.3s;
-        }
-        .lesson-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-        .lesson-left { display: flex; align-items: center; gap: 1.25rem; }
-        .time-box {
-            background: #eff6ff;
-            color: #1e3a8a;
-            padding: 1rem 1.25rem;
-            border-radius: 1.5rem;
-            text-align: center;
-            min-width: 110px;
-            border: 1px solid #dbeafe;
-        }
-        .time-box .label { font-size: 0.6rem; font-weight: 900; opacity: 0.5; text-transform: uppercase; margin-bottom: 0.25rem; }
-        .time-box .time { font-weight: 900; font-size: 1.1rem; letter-spacing: -0.5px; }
-        .subject-name { font-size: 1.6rem; font-weight: 900; color: #1e293b; }
-        .lesson-right { display: flex; align-items: flex-end; gap: 0.75rem; flex-wrap: wrap; }
-        .teacher-card {
-            background: #f8fafc;
-            border-radius: 1.5rem;
-            padding: 1rem;
-            border: 1px solid #f1f5f9;
-            min-width: 190px;
-        }
-        .track-label { font-size: 0.65rem; font-weight: 900; color: #2563eb; text-transform: uppercase; display: block; margin-bottom: 0.25rem; }
-        .teacher-name { font-size: 0.875rem; font-weight: 700; color: #334155; display: block; margin-bottom: 0.75rem; }
-        .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            width: 100%;
-            padding: 0.6rem;
-            border-radius: 0.75rem;
-            font-weight: 900;
-            font-size: 0.75rem;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.15s;
-            color: white;
-        }
-        .btn:active { transform: scale(0.95); }
-        .btn-zoom { background: #2563eb; }
-        .btn-zoom:hover { background: #1d4ed8; }
-        .btn-zoom-disabled { background: #cbd5e1; cursor: not-allowed; color: white; }
-        .btn-task { background: #f39200; margin-top: 0.5rem; }
-        .btn-task:hover { background: #e08600; }
-        .btn-task-disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; margin-top: 0.5rem; }
-        .assignment-col { width: 160px; }
-        @media (max-width: 640px) {
-            header h1 { font-size: 1.6rem; }
-            .lesson-card { flex-direction: column; align-items: flex-start; }
-            .lesson-right { width: 100%; }
-            .teacher-card { min-width: 0; flex: 1; }
-            .assignment-col { width: 100%; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מערכת יומית | אורט בית הערבה תשפ"ו</title>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Rubik:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --p:    #0E7490;
+      --p2:   #0891B2;
+      --s:    #14B8A6;
+      --a:    #34D399;
+      --dark: #093545;
+      --bg:   #F0FDFA;
+      --text: #1A2E35;
+      --muted:#6B7F87;
+      --border:#DCE9EB;
+      --sh:   0 2px 16px rgba(14,116,144,.10);
+      --shlg: 0 6px 32px rgba(14,116,144,.18);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family:'Heebo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      direction: rtl;
+      min-height: 100vh;
+    }
+
+    /* ─── HEADER ──────────────────────────── */
+    header {
+      background: linear-gradient(130deg, var(--dark) 0%, var(--p) 55%, var(--s) 100%);
+      color: #fff;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: var(--shlg);
+    }
+    .hd-brand { display:flex; align-items:center; gap:.9rem; }
+    .hd-logo {
+      width:46px; height:46px;
+      background: rgba(255,255,255,.16);
+      border: 1.5px solid rgba(255,255,255,.3);
+      border-radius: 13px;
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Rubik', sans-serif; font-weight:900; font-size:.95rem;
+      letter-spacing:-.5px; backdrop-filter: blur(10px);
+    }
+    .hd-title { font-family:'Rubik', sans-serif; font-size:1.1rem; font-weight:700; }
+    .hd-sub   { font-size:.72rem; opacity:.75; margin-top:2px; }
+    .hd-clock { text-align:center; }
+    #clock {
+      font-family:'Rubik', sans-serif; font-size:2.1rem; font-weight:800;
+      letter-spacing:3px; line-height:1;
+      text-shadow: 0 2px 12px rgba(0,0,0,.25);
+    }
+    #clock-date { font-size:.72rem; opacity:.75; margin-top:3px; }
+    .hd-right  { text-align:left; min-width:160px; }
+    #period-chip {
+      background: rgba(255,255,255,.16); border: 1.5px solid rgba(255,255,255,.28);
+      border-radius: 11px; padding: .45rem .9rem;
+      font-size:.82rem; font-weight:600; display:inline-block;
+      backdrop-filter: blur(8px);
+    }
+
+    /* ─── MAIN ────────────────────────────── */
+    .main { max-width:1380px; margin:0 auto; padding:1.4rem 2rem; }
+
+    /* ─── DAY TABS ────────────────────────── */
+    .day-tabs-wrap {
+      background:#fff; border-radius:14px; padding:4px;
+      display:flex; gap:3px; margin-bottom:1rem;
+      box-shadow: var(--sh);
+    }
+    .day-tab {
+      flex:1; border:none; background:transparent; border-radius:10px;
+      padding:.55rem .4rem .45rem;
+      font-family:'Heebo', sans-serif; font-weight:600; font-size:.9rem;
+      cursor:pointer; color:var(--muted); transition: all .22s;
+      display:flex; flex-direction:column; align-items:center; gap:1px;
+    }
+    .day-tab-sub { font-size:.68rem; font-weight:400; opacity:.65; }
+    .day-tab.active {
+      background: linear-gradient(135deg, var(--p), var(--s));
+      color:#fff; box-shadow: 0 3px 12px rgba(14,116,144,.35);
+    }
+    .day-tab.active .day-tab-sub { opacity:.85; }
+    .today-dot { display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--a); margin-bottom:2px; }
+    .day-tab.active .today-dot { background:#fff; }
+
+    /* ─── CLASS TABS ──────────────────────── */
+    .class-bar {
+      background:#fff; border-radius:14px; padding:.5rem .6rem;
+      display:flex; gap:.4rem; flex-wrap:wrap;
+      margin-bottom:1.3rem; box-shadow: var(--sh);
+      align-items:center;
+    }
+    .class-label {
+      font-size:.78rem; font-weight:700; color:var(--muted);
+      padding:.2rem .5rem; white-space:nowrap;
+    }
+    .class-btn {
+      border:1.5px solid var(--border); border-radius:9px;
+      background:#fff; padding:.38rem .75rem;
+      font-family:'Rubik', sans-serif; font-weight:700; font-size:.88rem;
+      cursor:pointer; color:var(--muted); transition: all .2s;
+    }
+    .class-btn:hover { border-color:var(--s); color:var(--p); background:#EFF9F8; }
+    .class-btn.active {
+      background: linear-gradient(135deg, var(--p), var(--s));
+      color:#fff; border-color:transparent;
+      box-shadow: 0 3px 10px rgba(14,116,144,.3);
+    }
+
+    /* ─── GRID ────────────────────────────── */
+    .grid { display:grid; grid-template-columns:1fr 290px; gap:1.3rem; align-items:start; }
+    @media(max-width:880px){ .grid{ grid-template-columns:1fr; } }
+
+    /* ─── LESSON CARDS ────────────────────── */
+    .lessons-wrap { display:flex; flex-direction:column; gap:1rem; }
+
+    .lesson-card {
+      background:#fff; border-radius:18px; box-shadow: var(--sh);
+      display:flex; align-items:stretch; overflow:hidden;
+      animation: fadeUp .35s ease both;
+      border: 1.5px solid transparent;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .lesson-card:hover { box-shadow: var(--shlg); transform:translateY(-2px); }
+    .lesson-card:nth-child(2){ animation-delay:.07s; }
+    .lesson-card:nth-child(3){ animation-delay:.14s; }
+
+    /* Left accent stripe */
+    .lesson-stripe {
+      width:6px; flex-shrink:0;
+      background: linear-gradient(180deg, var(--p), var(--s));
+    }
+
+    /* Time box */
+    .lesson-time {
+      background: linear-gradient(135deg, rgba(14,116,144,.06), rgba(20,184,166,.08));
+      border-left: 1px solid var(--border);
+      padding:1.2rem 1rem;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      min-width:100px; flex-shrink:0; text-align:center;
+    }
+    .lesson-time .tl { font-size:.6rem; font-weight:800; color:var(--muted); letter-spacing:.4px; text-transform:uppercase; margin-bottom:.25rem; }
+    .lesson-time .tm { font-family:'Rubik', sans-serif; font-weight:800; font-size:1rem; color:var(--p); line-height:1.4; }
+
+    /* Main content */
+    .lesson-body {
+      flex:1; padding:1rem 1.2rem;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:1rem; flex-wrap:wrap;
+    }
+    .lesson-subject {
+      font-family:'Rubik', sans-serif; font-size:1.45rem; font-weight:900; color:var(--text);
+    }
+
+    /* Teacher section */
+    .lesson-right { display:flex; gap:.75rem; flex-wrap:wrap; align-items:flex-end; }
+
+    .teacher-box {
+      background:#F6FEFE; border:1.5px solid var(--border);
+      border-radius:14px; padding:.8rem 1rem;
+      min-width:170px; display:flex; flex-direction:column; gap:.5rem;
+    }
+    .teacher-track {
+      font-size:.62rem; font-weight:800; color:var(--p);
+      text-transform:uppercase; letter-spacing:.4px;
+    }
+    .teacher-name-lbl {
+      font-size:.85rem; font-weight:700; color:var(--text);
+    }
+    .btn-row { display:flex; flex-direction:column; gap:.35rem; }
+
+    .lc-btn {
+      display:flex; align-items:center; justify-content:center; gap:.4rem;
+      padding:.42rem .7rem; border-radius:9px;
+      font-family:'Heebo', sans-serif; font-size:.78rem; font-weight:700;
+      text-decoration:none; border:none; cursor:pointer;
+      transition: all .18s;
+    }
+    .lc-btn.zoom   { background:#EFF6FF; color:#2563EB; }
+    .lc-btn.zoom:hover  { background:#2563EB; color:#fff; }
+    .lc-btn.meet   { background:#F0FDF4; color:#00897B; }
+    .lc-btn.meet:hover  { background:#00897B; color:#fff; }
+    .lc-btn.no-lnk { background:#F1F5F9; color:#94A3B8; cursor:not-allowed; }
+    .lc-btn.task   { background:rgba(20,184,166,.12); color:var(--s2); }
+    .lc-btn.task:hover  { background:var(--s); color:#fff; }
+    .lc-btn.task2  { background:rgba(52,211,153,.15); color:#059669; }
+    .lc-btn.task2:hover { background:#059669; color:#fff; }
+    .lc-btn.no-task { background:#F8FAFC; color:#CBD5E1; cursor:not-allowed; }
+
+    /* Empty state */
+    .no-schedule {
+      background:#fff; border-radius:18px; box-shadow: var(--sh);
+      padding:3rem; text-align:center; color:var(--muted);
+      font-size:1rem;
+    }
+    .no-schedule .icon { font-size:2.5rem; margin-bottom:.8rem; }
+
+    /* ─── CARD (sidebar) ──────────────────── */
+    .card { background:#fff; border-radius:18px; box-shadow: var(--sh); overflow:hidden; animation: fadeUp .4s ease both; }
+    .card-hd { background:linear-gradient(135deg,var(--p),var(--s)); color:#fff; padding:.9rem 1.2rem; }
+    .card-hd-title { font-family:'Rubik', sans-serif; font-weight:700; font-size:.95rem; }
+
+    /* ─── SIDEBAR ─────────────────────────── */
+    .sidebar { display:flex; flex-direction:column; gap:1.1rem; }
+
+    /* Teacher directory */
+    .teacher-list { padding:5px; max-height:360px; overflow-y:auto; }
+    .t-row { display:flex; align-items:center; justify-content:space-between; padding:.52rem .65rem; border-radius:10px; transition:background .15s; }
+    .t-row:hover { background:#EDF9F8; }
+    .t-name { font-size:.87rem; font-weight:600; }
+    .t-link { display:inline-flex; align-items:center; gap:.2rem; text-decoration:none; font-size:.74rem; font-weight:700; padding:.23rem .6rem; border-radius:7px; transition:all .18s; }
+    .t-link.zoom { background:rgba(45,140,255,.1); color:#2D8CFF; }
+    .t-link.zoom:hover { background:#2D8CFF; color:#fff; }
+    .t-link.meet { background:rgba(0,137,123,.1); color:#00897B; }
+    .t-link.meet:hover { background:#00897B; color:#fff; }
+    .t-no-link { font-size:.72rem; color:#C8D6D8; }
+
+    /* Tasks */
+    .tasks-inner { padding:6px; }
+    .tasks-scroll { max-height:210px; overflow-y:auto; margin-bottom:.4rem; }
+    .task-row { display:flex; align-items:flex-start; gap:.45rem; padding:.52rem .6rem; border-radius:9px; border:1.5px solid #EFF4F5; margin-bottom:4px; transition:border-color .18s; background:#fff; }
+    .task-row:hover { border-color:#B2E8E2; }
+    .task-chk { width:17px; height:17px; flex-shrink:0; border-radius:5px; border:2px solid var(--border); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:.6rem; transition:all .18s; margin-top:2px; }
+    .task-chk.on { background:var(--s); border-color:var(--s); color:#fff; }
+    .task-txt { flex:1; font-size:.84rem; line-height:1.4; word-break:break-word; }
+    .task-txt.done { text-decoration:line-through; color:var(--muted); }
+    .task-x { background:none; border:none; color:#D0DCDE; font-size:.88rem; cursor:pointer; padding:0; transition:color .18s; flex-shrink:0; }
+    .task-x:hover { color:#EF4444; }
+    .no-tasks { text-align:center; color:#C0CDD0; font-size:.8rem; padding:1rem; }
+    .task-add { display:flex; gap:5px; padding-top:.5rem; border-top:1px solid #EFF4F5; }
+    .task-inp { flex:1; border:1.5px solid var(--border); border-radius:9px; padding:.44rem .65rem; font-family:'Heebo', sans-serif; font-size:.82rem; direction:rtl; outline:none; transition:border-color .18s; }
+    .task-inp:focus { border-color:var(--s); }
+    .task-add-btn { background:linear-gradient(135deg,var(--p),var(--s)); border:none; border-radius:9px; width:34px; height:34px; color:#fff; font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:opacity .18s; }
+    .task-add-btn:hover { opacity:.85; }
+
+    /* ─── ANIMS ───────────────────────────── */
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ─── SCROLLBAR ───────────────────────── */
+    ::-webkit-scrollbar { width:4px; }
+    ::-webkit-scrollbar-thumb { background:#B8CCCE; border-radius:4px; }
+    ::-webkit-scrollbar-thumb:hover { background:var(--s); }
+
+    /* ─── RESPONSIVE ──────────────────────── */
+    @media(max-width:640px){
+      header { height:auto; padding:.8rem 1rem; flex-wrap:wrap; gap:.6rem; }
+      .main  { padding:1rem; }
+      #clock { font-size:1.6rem; }
+      .lesson-body { flex-direction:column; align-items:flex-start; }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <div class="logo-box"><span>אורט בית הערבה</span></div>
-        <h1>פורטל מערכת השעות</h1>
-        <p>יום ראשון - למידה מרחוק</p>
-    </header>
 
-    <main>
-        <div class="class-selector">
-            <h2>בחר כיתה:</h2>
-            <div class="tabs" id="class-tabs"></div>
+<!-- ══════════ HEADER ══════════ -->
+<header>
+  <div class="hd-brand">
+    <div class="hd-logo">אורט</div>
+    <div>
+      <div class="hd-title">אורט בית הערבה</div>
+      <div class="hd-sub">מערכת יומית – תשפ"ו</div>
+    </div>
+  </div>
+  <div class="hd-clock">
+    <div id="clock">00:00:00</div>
+    <div id="clock-date">–</div>
+  </div>
+  <div class="hd-right">
+    <div id="period-chip">טוען...</div>
+  </div>
+</header>
+
+<!-- ══════════ MAIN ══════════ -->
+<div class="main">
+
+  <!-- Day tabs -->
+  <div class="day-tabs-wrap" id="day-tabs"></div>
+
+  <!-- Class selector -->
+  <div class="class-bar">
+    <span class="class-label">בחר כיתה:</span>
+    <div id="class-tabs" style="display:flex;gap:.4rem;flex-wrap:wrap;"></div>
+  </div>
+
+  <!-- Grid -->
+  <div class="grid">
+
+    <!-- Lessons -->
+    <div class="lessons-wrap" id="lessons-area"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+
+      <div class="card" style="animation-delay:.1s">
+        <div class="card-hd"><span class="card-hd-title">📹 קישורי זום / מיט</span></div>
+        <div class="teacher-list" id="teacher-dir"></div>
+      </div>
+
+      <div class="card" style="animation-delay:.2s">
+        <div class="card-hd"><span class="card-hd-title">📋 מטלות ומשימות</span></div>
+        <div class="tasks-inner">
+          <div class="tasks-scroll" id="tasks-list"></div>
+          <div class="task-add">
+            <input class="task-inp" id="task-inp" type="text" placeholder="הוסף מטלה חדשה..." />
+            <button class="task-add-btn" onclick="addTask()">+</button>
+          </div>
         </div>
-        <div class="lessons" id="lessons-container"></div>
-    </main>
+      </div>
 
-    <script>
-        const teacherLinks = {
-            'אופירה מלכה': 'https://edu-il.zoom.us/j/2026881653',
-            'מנו דהאן': 'https://edu-il.zoom.us/j/86927082525?pwd=8nMIngwn00JP7OhbuZICVMKvPoTErd.1',
-            'רוית גל': 'https://meet.google.com/acg-ibui-cfk',
-            'אליאל קוסקאס': 'https://edu-il.zoom.us/j/8407657472',
-            'אפרת בר אשר': 'https://zoom.us/j/5279673102?pwd=znspSkx8NypgYY7sDCmkB4Xz7qo6hO.1',
-            'בת שבע אדלר': 'https://meet.google.com/gpe-hcte-zbh?authuser=4&pli=1',
-            'יוסי רובבשי': 'https://edu-il.zoom.us/j/7562737216?omn=84003831557',
-            'מלי נמיר': 'https://edu-il.zoom.us/j/8301084260',
-            'משה צברי': 'https://edu-il.zoom.us/j/4769931846',
-            'פרלה שאזו': 'https://edu-il.zoom.us/j/7161748287',
-            'רעיה יצחקי': 'https://edu-il.zoom.us/j/5717366311',
-            'ויקי קלדרון': 'https://edu-il.zoom.us/j/7823743204',
-            'ליאת רוזנר': 'https://edu-il.zoom.us/j/6182667468',
-            'אושר אהרוני': '',
-            'נעמה': '',
-            'מירב בטיטו': '',
-            'שי בגלר': ''
-        };
+    </div>
+  </div>
+</div>
 
-        const assignments = {
-            bible: 'https://docs.google.com/forms/d/e/1FAIpQLSfhU21sfMBnKYPvwGWcpowMKYxxJgECDV2_FrspgGthj72aYg/viewform',
-            mathViki: 'https://docs.google.com/forms/d/e/1FAIpQLSehg6Q0jQ83qG9j1Fx3A2tXvirU0TpFVqVx1w_QqyKlm7ScCw/viewform',
-            historyRaia: 'https://docs.google.com/forms/d/e/1FAIpQLSf6B0rO4H_2Y-S_6T73F7U67xR3-7Vq0A0n8W5T0qG9m1X9A2g/viewform',
-            mathRavit: 'https://docs.google.com/forms/d/e/1FAIpQLSe7Y0ZkGvK1M2z7T6L5QG3Rsc-KqY8wN15YxHqF-K_4W3D_N5E5QG9m1X9A2g/viewform',
-            mathRavit2: 'https://docs.google.com/forms/d/e/1FAIpQLSfVfVmU00jAlRE9TykHx2m6E2tIO4eB5VdKnmzaCdrLoiv1bw/viewform?usp=publish-editor',
-            mathNaama: 'https://docs.google.com/forms/d/e/1FAIpQLSdwMvFIIXBXObr_wmqebMBKjkHECFz8UjpLVuX9mzIlLVnPGw/viewform?usp=header',
-            mathOsher: 'https://forms.gle/LDXFNDkc7WHattqF7',
-            litRaya1: 'https://docs.google.com/forms/d/e/1FAIpQLSfpC64U9dR_y6rrx4wO31yJjurnob2jV71VLQ9rsWCMkKMDeA/viewform?usp=publish-editor',
-            litRaya2: 'https://meytalp-dev.github.io/achat-meitano-raya2/'
-        };
+<script>
+// ════════════════════════════════════════════
+// TEACHERS  (directory + zoom links)
+// ════════════════════════════════════════════
+const TEACHERS = [
+  { name: 'אופירה מלכה',    url: 'https://edu-il.zoom.us/j/2026881653',                                                        type: 'zoom' },
+  { name: 'אושר אהרוני',    url: 'https://edu-il.zoom.us/j/4281075356',                                                        type: 'zoom' },
+  { name: 'אליאל קוסקאס',   url: 'https://edu-il.zoom.us/j/8407657472',                                                        type: 'zoom' },
+  { name: 'אפרת בר אשר',   url: 'https://zoom.us/j/5279673102?pwd=znspSkx8NypgYY7sDCmkB4Xz7qo6hO.1',                         type: 'zoom' },
+  { name: 'בת שבע אדלר',   url: 'https://edu-il.zoom.us/j/2363218838',                                                        type: 'zoom' },
+  { name: 'ויקי קלדרון',    url: 'https://edu-il.zoom.us/j/7823743204',                                                        type: 'zoom' },
+  { name: 'דורית ויגדור',   url: 'https://edu-il.zoom.us/j/9928873852',                                                        type: 'zoom' },
+  { name: 'יהודית בן גיגי', url: 'https://edu-il.zoom.us/j/5694083607',                                                        type: 'zoom' },
+  { name: 'יוסי רובבשי',    url: 'https://edu-il.zoom.us/j/7562737216?omn=84003831557',                                       type: 'zoom' },
+  { name: 'יעל טננבאום',    url: null,                                                                                          type: null   },
+  { name: 'ליאת רוזנר',     url: 'https://edu-il.zoom.us/j/6182667468',                                                        type: 'zoom' },
+  { name: "לינוי בנג'י",   url: null,                                                                                          type: null   },
+  { name: 'מנו דהאן',       url: 'https://edu-il.zoom.us/j/86927082525?pwd=8nMIngwn00JP7OhbuZICVMKvPoTErd.1',                 type: 'zoom' },
+  { name: 'מירב בטיטו',     url: 'https://edu-il.zoom.us/j/3647237037',                                                        type: 'zoom' },
+  { name: 'מלי נמיר',       url: 'https://edu-il.zoom.us/j/83010845209?pwd=FZ8BWfNPdeT8hqQWcCDo2YcNeQJjkq.1',                type: 'zoom' },
+  { name: 'מריאן זרצקי',    url: 'https://edu-il.zoom.us/j/6513507417',                                                        type: 'zoom' },
+  { name: 'משה צברי',       url: 'https://edu-il.zoom.us/j/7479299484',                                                        type: 'zoom' },
+  { name: 'נעמה קוסטן',     url: null,                                                                                          type: null   },
+  { name: 'פרלה שאזו',      url: 'https://edu-il.zoom.us/j/5475736531',                                                        type: 'zoom' },
+  { name: 'רוית גל',         url: 'https://edu-il.zoom.us/j/2753909142',                                                        type: 'zoom' },
+  { name: 'רעיה יצחקי',     url: 'https://edu-il.zoom.us/j/4104147815',                                                        type: 'zoom' },
+  { name: 'שי בגלר',         url: 'https://edu-il.zoom.us/j/9425609969',                                                        type: 'zoom' },
+  { name: 'שירלי',           url: null,                                                                                          type: null   },
+];
 
-        const schedule = {
-            'ט1': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'משה צברי' }] },
-                { time: '10:45-11:30', subject: 'מתמטיקה', teachers: [{ teacher: 'אושר אהרוני' }], assignment: assignments.mathOsher },
-                { time: '12:00-12:45', subject: 'תנ"ך', teachers: [{ teacher: 'משה צברי' }], assignment: assignments.bible }
-            ],
-            'ט2': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'אושר אהרוני' }] },
-                { time: '10:45-11:30', subject: 'מתמטיקה', teachers: [{ teacher: 'אושר אהרוני' }], assignment: assignments.mathOsher },
-                { time: '12:00-12:45', subject: 'תנ"ך', teachers: [{ teacher: 'משה צברי' }], assignment: assignments.bible }
-            ],
-            'י1': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'רעיה יצחקי' }] },
-                { time: '10:45-11:30', subject: 'היסטוריה', teachers: [{ teacher: 'רעיה יצחקי' }], assignment: assignments.historyRaia },
-                { time: '12:00-12:45', subject: 'מתמטיקה', teachers: [{ teacher: 'נעמה' }], assignment: assignments.mathNaama }
-            ],
-            'י2': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'אופירה מלכה' }] },
-                { time: '10:45-11:30', subject: 'אזרחות', teachers: [{ teacher: 'משה צברי' }] },
-                { time: '12:00-12:45', subject: 'עברית', teachers: [{ teacher: 'מירב בטיטו' }] }
-            ],
-            'י3': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'פרלה שאזו' }] },
-                { time: '10:45-11:30', subject: 'עברית', teachers: [{ teacher: 'מירב בטיטו' }] },
-                { time: '12:00-12:45', subject: 'ספרות', teachers: [{ teacher: 'רעיה יצחקי' }], assignments: [assignments.litRaya1, assignments.litRaya2] }
-            ],
-            'יא1': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'אפרת בר אשר' }] },
-                { time: '10:45-11:30', subject: 'תנ"ך', teachers: [{ teacher: 'אליאל קוסקאס' }] },
-                { time: '12:00-12:45', subject: 'מתמטיקה', teachers: [{ teacher: 'רוית גל' }], assignment: assignments.mathRavit2 }
-            ],
-            'יא2': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'נעמה' }] },
-                { time: '10:45-11:30', subject: 'מתמטיקה', teachers: [{ teacher: 'נעמה' }], assignment: assignments.mathNaama },
-                { time: '12:00-12:45', subject: 'עברית', teachers: [{ teacher: 'אושר אהרוני' }] }
-            ],
-            'יא3': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'ליאת רוזנר' }] },
-                { time: '10:45-11:30', subject: 'מתמטיקה', teachers: [{ teacher: 'ויקי קלדרון' }], assignment: assignments.mathViki },
-                { time: '12:00-12:45', subject: 'תנ"ך', teachers: [{ teacher: 'אליאל קוסקאס' }] }
-            ],
-            'יב1': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'יוסי רובבשי' }] },
-                { time: '10:45-11:30', subject: 'מגמות', teachers: [{track: 'אוטוטרוניקה', teacher: 'יוסי רובבשי'}, {track: 'מחשבים', teacher: 'שי בגלר'}] },
-                { time: '12:00-12:45', subject: 'מגמות', teachers: [{track: 'אוטוטרוניקה', teacher: 'יוסי רובבשי'}, {track: 'מחשבים', teacher: 'שי בגלר'}] }
-            ],
-            'יב2': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'ויקי קלדרון' }] },
-                { time: '10:45-11:30', subject: 'מגמות', teachers: [{track: 'אוטוטרוניקה', teacher: 'יוסי רובבשי'}, {track: 'מחשבים', teacher: 'שי בגלר'}] },
-                { time: '12:00-12:45', subject: 'מגמות', teachers: [{track: 'אוטוטרוניקה', teacher: 'יוסי רובבשי'}, {track: 'מחשבים', teacher: 'שי בגלר'}] }
-            ],
-            'יב3': [
-                { time: '10:00-10:30', subject: 'חינוך', teachers: [{ teacher: 'מנו דהאן' }] },
-                { time: '10:45-11:30', subject: 'מגמות', teachers: [{track: 'אוטוטרוניקה', teacher: 'יוסי רובבשי'}, {track: 'מחשבים', teacher: 'שי בגלר'}] },
-                { time: '12:00-12:45', subject: 'מגמות', teachers: [{track: 'אוטוטרוניקה', teacher: 'יוסי רובבשי'}, {track: 'מחשבים', teacher: 'שי בגלר'}] }
-            ]
-        };
+// Helper to find teacher by name (handles partial match for 'נעמה' → 'נעמה קוסטן')
+function findTeacher(name) {
+  if (!name) return null;
+  return TEACHERS.find(t => t.name === name)
+      || TEACHERS.find(t => t.name.startsWith(name) || name.startsWith(t.name.split(' ')[0]));
+}
 
-        let currentClass = 'ט1';
+// ════════════════════════════════════════════
+// ASSIGNMENT LINKS
+// ════════════════════════════════════════════
+const A = {
+  bible:        'https://docs.google.com/forms/d/e/1FAIpQLSfhU21sfMBnKYPvwGWcpowMKYxxJgECDV2_FrspgGthj72aYg/viewform',
+  mathViki:     'https://docs.google.com/forms/d/e/1FAIpQLSehg6Q0jQ83qG9j1Fx3A2tXvirU0TpFVqVx1w_QqyKlm7ScCw/viewform',
+  historyRaia:  'https://docs.google.com/forms/d/1_6hZS_BsGr2XTGVORzAEh4OJ8hEXmEm2ZQa6jolXUVQ/viewform',
+  mathRavit2:   'https://docs.google.com/forms/d/e/1FAIpQLSfVfVmU00jAlRE9TykHx2m6E2tIO4eB5VdKnmzaCdrLoiv1bw/viewform?usp=publish-editor',
+  mathNaama:    'https://docs.google.com/forms/d/e/1FAIpQLSdwMvFIIXBXObr_wmqebMBKjkHECFz8UjpLVuX9mzIlLVnPGw/viewform?usp=header',
+  mathOsher:    'https://docs.google.com/forms/d/e/1FAIpQLScpVS3EL0-H7u7KTJtUZHEabSepmFX9AYZGN3VwE4WJ3iBR8A/viewform?usp=publish-editor',
+  litRaya1:     'https://docs.google.com/forms/d/e/1FAIpQLSfpC64U9dR_y6rrx4wO31yJjurnob2jV71VLQ9rsWCMkKMDeA/viewform?usp=publish-editor',
+  litRaya2:     'https://meytalp-dev.github.io/achat-meitano-raya2/',
+  civicsMoshe:  'https://docs.google.com/forms/d/e/1FAIpQLSfhU21sfMBnKYPvwGWcpowMKYxxJgECDV2_FrspgGthj72aYg/viewform',
+  // יום שני 9/3
+  tanachMoshe_pres:  'https://drive.google.com/file/d/16zCc62Vs95i_eLnfrTLJ2P5AZMZsPqcZ/view?usp=drive_link',
+  tanachMoshe_task:  'https://forms.gle/atJx6m3XBE3GYsnz8',
+  mathOsher_pres:    'https://docs.google.com/presentation/d/1sYkDY1D0s3Hj0n83D_Rl4HOpIqe3-BJHwN4B8u_zjCQ/view?slide=id.p1#slide=id.p1',
+  tanachRaya_pres:   'https://docs.google.com/presentation/d/1tRYFn106yyJd2EiX1MIfd8Cy8ocNrI4ujwrr0TrEsnk/view?slide=id.p1#slide=id.p1',
+  tanachRaya_task:   'https://docs.google.com/forms/d/e/1FAIpQLSczRIp7t0G4c03xMkSI_B9BXmwFB4AhAGupMWRcZy_Hc3NElg/viewform',
+  hebrewOsher_pres:  'https://docs.google.com/presentation/d/1RCpLSvliNjUoJCj4fBuy9h1hRNZgmJx_CQ4Lcurd_vA/view?slide=id.p1#slide=id.p1',
+  mathVikiEscape:    'https://meytalp-dev.github.io/escaperoom-math-vicky/',
+  hebrewEfrat:       'https://docs.google.com/forms/d/e/1FAIpQLSe4Gfwaq0nxl9trEf1mp9HR4yWASg-VRPpPGyq0GzhlcXkq0A/viewform?usp=preview',
+  tanachEliel_pres:  'https://docs.google.com/presentation/d/1aH4LscTHGMkaPV2UaWEOfkVjBVr4C6UePKML_qH4tWQ/edit?usp=sharing',
+  tanachEliel_task:  'https://docs.google.com/document/d/1abDNf7ECV60_Pwx1vd0oMTSjD1MznubqAv3SvvwVnSE/edit?usp=sharing',
+  trafManu_pres:     'https://drive.google.com/file/d/1pdrScGGxjwCq3umvg5PEBddZ_n27q0sv/view?usp=sharing',
+  trafManu_task:     'https://drive.google.com/file/d/1pk1rUP2IKgp45oc2XdRCiD0KF7LUODkc/view',
+  megamotYossi_pres: 'https://docs.google.com/presentation/d/17H2f8jlmsHuyf5gWVLIpqjYDi-EaEGzO/view?slide=id.p1#slide=id.p1',
+  megamotYossi_task: 'https://docs.google.com/forms/d/e/1FAIpQLSdAC1g7JZkgzKsFpcRDOC7l25hGv2Tm-b0fid_kBG5wermkKA/viewform',
+  megamotShirley:    'https://docs.google.com/document/d/1CWDjFEGqB6Tnb71RYhSw8ygp4Dyi6Vlk9dRlm0zM45k/edit?usp=sharing',
+  histMosheY2_pres:  'https://drive.google.com/file/d/1QaX_x6uU37Su0kohOK3zRmuJ0H4d3AVS/view?usp=drive_link',
+  histMosheY2_task:  'https://docs.google.com/document/d/1wu3sSB_4BsBVO5sFl5F9vCIgRhISQhltT621RJVO2Yc/edit?usp=drive_link',
+  // יום שלישי 10/3
+  mathOsherStats_pres:  'https://docs.google.com/presentation/d/1ho2A7JRdV_NaTScFauuoT9xTsuMOjDLRmVevDsjN-gI/view?slide=id.p1#slide=id.p1',
+  mathOsherStats_task:  'https://docs.google.com/forms/d/e/1FAIpQLSfZO_Wx6_kmx7S4Cp5QVJ2KYRrqfBegCSe3BjGTFRk0oGA2Gg/viewform?usp=publish-editor',
+  civicsMosheTue_pres:  'https://drive.google.com/file/d/1DtL_C5LshEQcMAUpKqLM0_Yl_LvkBM_5/view?usp=sharing',
+  civicsMosheTue_task:  'https://docs.google.com/forms/d/e/1FAIpQLScD6x0h-3I19UO4ZDQu1gJqwrRaDlyk1jE1-zTdPFjT9iS9_A/viewform',
+  litRayaTue_pres:      'https://docs.google.com/presentation/d/1GAxq1gq1Jjnp4rJWT5qUQtI_BwDnZ4V3TggfLsQqUPM/edit?usp=sharing',
+  megamotPerlaTue_pres: 'https://docs.google.com/presentation/d/1ArJeZhc9J6d1ESc_8icQCkjshIYNbsvF/edit?slide=id.p1#slide=id.p1',
+  megamotPerlaTue_task: 'https://docs.google.com/forms/d/e/1FAIpQLSesI_6lWm_1FlyXyC2hF-blSNcqEzjJ1d-QFFIPvgq9Ov8U-A/viewform?usp=publish-editor',
+  megamotYossiTue_pres: 'https://docs.google.com/presentation/d/1DHIfqHushrlXnbrbKUKknivdQJqD-0mo/edit?usp=drive_link&ouid=116751008898483336606&rtpof=true&sd=true',
+  megamotYossiTue_task: 'https://docs.google.com/forms/d/e/1FAIpQLSekOYSrnaykXuP-45qSXWE9scJOkYtDACgRBRBb7jfIJ5nkvQ/viewform',
+  megamotShaiTue_task:  'https://docs.google.com/forms/d/e/1FAIpQLScxOv9LHL1adaa-0XDtHzwIAEMGL0kbT_0iq8P1CBO_gpVWiw/viewform',
+  hebrewEfratTue_task:  'https://forms.gle/ht3KCGeoLbVDHmBB8',
+  engMarianTue_pres:    'https://docs.google.com/document/d/11cP78TIVPaiiB5Ihr5l6hJ30tIafaGpKthpYrnOJcLM/edit?usp=sharing',
+  engMarianTue_task:    'https://forms.gle/f1BWiULDNEMPa6dg6',
+  engYehuditTue_pres:   'https://drive.google.com/file/d/152nXBQ2NM7s_ZZT4zUVmGM3-mq2AdToz/view?usp=sharing',
+  engYehuditTue_task:   'https://docs.google.com/document/d/1-RGzcWhH9QCnjNfYKX_Oixp1lUIIURzRSxJK3TpcQdQ/edit?usp=sharing',
+  engBatshevaTue_pres:  'https://drive.google.com/file/d/1rBk4YZ1_SVMCEwvMo31VZDgka7uyEoQn/view?usp=sharing',
+  engBatshevaTue_task:  'https://docs.google.com/forms/d/e/1FAIpQLSfI3Rz6NRBd8xLjLgfXOdJoAvIh1XVB9SefdncCt_XDCV8Kpw/viewform?usp=publish-editor',
+  mathNaamaTue_task:    'https://docs.google.com/forms/d/e/1FAIpQLSdvVmAKmjbXqymmYfX41Gua8mOYoK9B9gkGUXcbJvRPZeTfAQ/viewform',
+  hebrewOsherTue_task:  'https://docs.google.com/forms/d/e/1FAIpQLSdkpukBhYQ6ylJVmIHS5Ob1zFQNxdpj-HPdX2g2nE6orVR0Fg/viewform?usp=publish-editor',
+  tanachElielTue_task:  'https://docs.google.com/forms/d/e/1FAIpQLSe3-7foj30Jd7ufj-K8Q1zWSH-SYh4eEewCYI3onir3lSwiNg/viewform?usp=publish-editor',
+};
 
-        const zoomIcon = `<svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>`;
-        const taskIcon = `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`;
+// ════════════════════════════════════════════
+// SCHEDULE DATA  (by day index → class)
+// ════════════════════════════════════════════
+//  day 0 = ראשון (Sunday), 1 = שני, etc.
+//  Each lesson: { time, subject, teachers:[{teacher,track?}], assignment?, assignments? }
+const SCHEDULE = {
+  0: { // יום ראשון
+    'ט1': [
+      { time:'10:00–10:30', subject:'חינוך',      teachers:[{teacher:'משה צברי'}] },
+      { time:'10:45–11:30', subject:'תנ"ך',       teachers:[{teacher:'משה צברי'}],     assignment: A.bible },
+      { time:'12:00–12:45', subject:'מתמטיקה',    teachers:[{teacher:'אושר אהרוני'}],  assignment: A.mathOsher,   topic:'ממוצע, חציון, שכיח' },
+    ],
+    'ט2': [
+      { time:'10:00–10:30', subject:'חינוך',      teachers:[{teacher:'אושר אהרוני'}] },
+      { time:'10:45–11:30', subject:'תנ"ך',       teachers:[{teacher:'משה צברי'}],     assignment: A.bible },
+      { time:'12:00–12:45', subject:'מתמטיקה',    teachers:[{teacher:'אושר אהרוני'}],  assignment: A.mathOsher,   topic:'ממוצע, חציון, שכיח' },
+    ],
+    'י1': [
+      { time:'10:00–10:30', subject:'חינוך',      teachers:[{teacher:'רעיה יצחקי'}] },
+      { time:'10:45–11:30', subject:'היסטוריה',   teachers:[{teacher:'רעיה יצחקי'}],   assignment: A.historyRaia, topic:'מדינה חשמונאית' },
+      { time:'12:00–12:45', subject:'מתמטיקה',    teachers:[{teacher:'נעמה קוסטן'}],   assignment: A.mathNaama,   topic:'סטטיסטיקה והסתברות' },
+    ],
+    'י2': [
+      { time:'10:00–10:30', subject:'חינוך',      teachers:[{teacher:'אופירה מלכה'}] },
+      { time:'10:45–11:30', subject:'אזרחות',     teachers:[{teacher:'משה צברי'}],     assignment: A.civicsMoshe, topic:'עקרונות הדמוקרטיה' },
+      { time:'12:00–12:45', subject:'עברית',      teachers:[{teacher:'מירב בטיטו'}] },
+    ],
+    'י3': [
+      { time:'10:00–10:30', subject:'חינוך',      teachers:[{teacher:'פרלה שאזו'}] },
+      { time:'10:45–11:30', subject:'עברית',      teachers:[{teacher:'מירב בטיטו'}] },
+      { time:'12:00–12:45', subject:'ספרות',      teachers:[{teacher:'רעיה יצחקי'}],   assignments:[{url:A.litRaya2,label:'אחת מאיתנו'},{url:A.litRaya1,label:'בוחן'}] },
+    ],
+    'יא1': [
+      { time:'10:00–10:30', subject:'חינוך',      teachers:[{teacher:'אפרת בר אשר'}] },
+      { time:'10:45–11:30', subject:'תנ"ך',       teachers:[{teacher:'אליאל קוסקאס'}] },
+      { time:'12:00–12:45', subject:'מתמטיקה',    teachers:[{teacher:'רוית גל'}],       assignment: A.mathRavit2,  topic:'מודל לינארי' },
+    ],
+    'יא2': [
+      { time:'10:00–10:30', subject:'חינוך',      teachers:[{teacher:'נעמה קוסטן'}] },
+      { time:'10:45–11:30', subject:'מתמטיקה',    teachers:[{teacher:'נעמה קוסטן'}],   assignment: A.mathNaama,   topic:'סטטיסטיקה והסתברות' },
+      { time:'12:00–12:45', subject:'עברית',      teachers:[{teacher:'אושר אהרוני'}] },
+    ],
+    'יא3': [
+      { time:'10:00–10:30', subject:'חינוך',      teachers:[{teacher:'ליאת רוזנר'}] },
+      { time:'10:45–11:30', subject:'מתמטיקה',    teachers:[{teacher:'ויקי קלדרון'}],   assignment: A.mathViki,    topic:'מודל לינארי' },
+      { time:'12:00–12:45', subject:'תנ"ך',       teachers:[{teacher:'אליאל קוסקאס'}] },
+    ],
+    'יב1': [
+      { time:'10:00–10:30', subject:'חינוך',      teachers:[{teacher:'יוסי רובבשי'}] },
+      { time:'10:45–11:30', subject:'מגמות',      teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'12:00–12:45', subject:'מגמות',      teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+    ],
+    'יב2': [
+      { time:'10:00–10:30', subject:'חינוך',      teachers:[{teacher:'ויקי קלדרון'}] },
+      { time:'10:45–11:30', subject:'מגמות',      teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'12:00–12:45', subject:'מגמות',      teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+    ],
+    'יב3': [
+      { time:'10:00–10:30', subject:'חינוך',      teachers:[{teacher:'מנו דהאן'}] },
+      { time:'10:45–11:30', subject:'מגמות',      teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'12:00–12:45', subject:'מגמות',      teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+    ],
+  },
+  1: { // יום שני
+    'ט1': [
+      { time:'10:00–10:30', subject:'חינוך',              teachers:[{teacher:'משה צברי'}] },
+      { time:'10:45–11:30', subject:'היסטוריה',           teachers:[{teacher:'משה צברי'}],     assignments:[{url:A.tanachMoshe_pres,label:'מצגת'},{url:A.tanachMoshe_task,label:'מטלה'}], topic:'שמואל הנביא והמלכת שאול' },
+      { time:'12:00–12:45', subject:'מתמטיקה',            teachers:[{teacher:'אושר אהרוני'}],   assignments:[{url:A.mathOsher_pres,label:'מצגת'},{url:A.mathOsher,label:'מטלה'}] },
+    ],
+    'ט2': [
+      { time:'10:00–10:30', subject:'חינוך',              teachers:[{teacher:'אושר אהרוני'}] },
+      { time:'10:45–11:30', subject:'היסטוריה',           teachers:[{teacher:'משה צברי'}],     assignments:[{url:A.tanachMoshe_pres,label:'מצגת'},{url:A.tanachMoshe_task,label:'מטלה'}], topic:'שמואל הנביא והמלכת שאול' },
+      { time:'12:00–12:45', subject:'מתמטיקה',            teachers:[{teacher:'אושר אהרוני'}],   assignments:[{url:A.mathOsher_pres,label:'מצגת'},{url:A.mathOsher,label:'מטלה'}] },
+    ],
+    'י1': [
+      { time:'10:00–10:30', subject:'חינוך',              teachers:[{teacher:'רעיה יצחקי'}] },
+      { time:'10:45–11:30', subject:'תנ"ך',                teachers:[{teacher:'רעיה יצחקי'}],   assignments:[{url:A.tanachRaya_pres,label:'מצגת'},{url:A.tanachRaya_task,label:'מטלה'}], topic:'לך לך' },
+      { time:'12:00–12:45', subject:'מתמטיקה',            teachers:[{teacher:'נעמה קוסטן'}],   assignment: A.mathNaama,   topic:'סטטיסטיקה והסתברות' },
+    ],
+    'י2': [
+      { time:'10:00–10:30', subject:'חינוך',              teachers:[{teacher:'אופירה מלכה'}] },
+      { time:'10:45–11:30', subject:'מתמטיקה',            teachers:[{teacher:'נעמה קוסטן'}],   assignment: A.mathNaama },
+      { time:'12:00–12:45', subject:'היסטוריה',           teachers:[{teacher:'משה צברי'}],     assignments:[{url:A.histMosheY2_pres,label:'מצגת'},{url:A.histMosheY2_task,label:'מטלה'}] },
+    ],
+    'י3': [
+      { time:'10:00–10:30', subject:'חינוך',              teachers:[{teacher:'פרלה שאזו'}] },
+      { time:'10:45–11:30', subject:'עברית',              teachers:[{teacher:'אושר אהרוני'}],   assignments:[{url:A.hebrewOsher_pres,label:'מצגת'},{url:'https://docs.google.com/forms/d/e/1FAIpQLSdkpukBhYQ6ylJVmIHS5Ob1zFQNxdpj-HPdX2g2nE6orVR0Fg/viewform?usp=publish-editor',label:'מטלה'}], topic:'כתיבה ממזגת' },
+      { time:'12:00–12:45', subject:'מתמטיקה',            teachers:[{teacher:'ויקי קלדרון'}],   assignment: A.mathVikiEscape,    topic:'חדר בריחה' },
+    ],
+    'יא1': [
+      { time:'10:00–10:30', subject:'חינוך',              teachers:[{teacher:'אפרת בר אשר'}] },
+      { time:'10:45–11:30', subject:'עברית',              teachers:[{teacher:'אפרת בר אשר'}],   assignment: A.hebrewEfrat, topic:'דרכי תצורה' },
+      { time:'12:00–12:45', subject:'תנ"ך',               teachers:[{teacher:'אליאל קוסקאס'}], assignments:[{url:A.tanachEliel_pres,label:'מצגת'},{url:A.tanachEliel_task,label:'מטלה'}] },
+    ],
+    'יא2': [
+      { time:'10:00–10:30', subject:'חינוך',              teachers:[{teacher:'נעמה קוסטן'}] },
+      { time:'10:45–11:30', subject:'חינוך תעבורתי',      teachers:[{teacher:'מנו דהאן'}],     assignments:[{url:A.trafManu_pres,label:'מצגת'},{url:A.trafManu_task,label:'מטלה'}], topic:'אלכוהול' },
+      { time:'12:00–12:45', subject:'חינוך תעבורתי',      teachers:[{teacher:'מנו דהאן'}],     assignments:[{url:A.trafManu_pres,label:'מצגת'},{url:A.trafManu_task,label:'מטלה'}], topic:'אלכוהול' },
+    ],
+    'יא3': [
+      { time:'10:00–10:30', subject:'חינוך',              teachers:[{teacher:'ליאת רוזנר'}] },
+      { time:'10:45–11:30', subject:'תנ"ך',               teachers:[{teacher:'אליאל קוסקאס'}], assignments:[{url:A.tanachEliel_pres,label:'מצגת'},{url:A.tanachEliel_task,label:'מטלה'}] },
+      { time:'12:00–12:45', subject:'עברית',              teachers:[{teacher:'אפרת בר אשר'}],   assignment: A.hebrewEfrat, topic:'דרכי תצורה' },
+    ],
+    'יב1': [
+      { time:'10:00–10:30', subject:'חינוך',              teachers:[{teacher:'יוסי רובבשי'}] },
+      { time:'10:45–11:30', subject:'מגמות',              teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'},{teacher:'שירלי', track:'עיצוב שיער'}], assignments:[{url:A.megamotYossi_pres,label:'מצגת אוטוטרוניקה'},{url:A.megamotYossi_task,label:'מטלה אוטוטרוניקה'},{url:A.megamotShirley,label:'מטלה עיצוב שיער'}] },
+      { time:'12:00–12:45', subject:'מגמות',              teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'},{teacher:'שירלי', track:'עיצוב שיער'}], assignments:[{url:A.megamotYossi_pres,label:'מצגת אוטוטרוניקה'},{url:A.megamotYossi_task,label:'מטלה אוטוטרוניקה'},{url:A.megamotShirley,label:'מטלה עיצוב שיער'}] },
+    ],
+    'יב2': [
+      { time:'10:00–10:30', subject:'חינוך',              teachers:[{teacher:'ויקי קלדרון'}] },
+      { time:'10:45–11:30', subject:'מגמות',              teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'},{teacher:'שירלי', track:'עיצוב שיער'}], assignments:[{url:A.megamotYossi_pres,label:'מצגת אוטוטרוניקה'},{url:A.megamotYossi_task,label:'מטלה אוטוטרוניקה'},{url:A.megamotShirley,label:'מטלה עיצוב שיער'}] },
+      { time:'12:00–12:45', subject:'מגמות',              teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'},{teacher:'שירלי', track:'עיצוב שיער'}], assignments:[{url:A.megamotYossi_pres,label:'מצגת אוטוטרוניקה'},{url:A.megamotYossi_task,label:'מטלה אוטוטרוניקה'},{url:A.megamotShirley,label:'מטלה עיצוב שיער'}] },
+    ],
+    'יב3': [
+      { time:'10:00–10:30', subject:'חינוך',              teachers:[{teacher:'מנו דהאן'}] },
+      { time:'10:45–11:30', subject:'אנגלית',              teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'}] },
+      { time:'12:00–12:45', subject:'אנגלית',              teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'}] },
+    ],
+  },
+  2: { // יום שלישי
+    'ט1': [
+      { time:'10:00–10:45', subject:'חינוך + אזרחות',  teachers:[{teacher:'משה צברי'}], topic:'זכויות אזרח בדמוקרטיה', assignments:[{url:A.civicsMosheTue_pres,label:'מצגת'},{url:A.civicsMosheTue_task,label:'מטלה'}] },
+      { time:'10:55–11:40', subject:'מתמטיקה',          teachers:[{teacher:'אושר אהרוני'}], topic:'סטטיסטיקה למתקדמים', assignments:[{url:A.mathOsherStats_pres,label:'מצגת'},{url:A.mathOsherStats_task,label:'מטלה'}] },
+      { time:'11:50–12:30', subject:'עברית',             teachers:[{teacher:'מירב בטיטו'}] },
+    ],
+    'ט2': [
+      { time:'10:00–10:45', subject:'חינוך + עברית',    teachers:[{teacher:'אושר אהרוני'}], topic:'זכויות אזרח בדמוקרטיה', assignments:[{url:A.civicsMosheTue_pres,label:'מצגת אזרחות'},{url:A.civicsMosheTue_task,label:'מטלה אזרחות'},{url:A.mathOsherStats_task,label:'מטלה עברית – סוכר'}] },
+      { time:'10:55–11:40', subject:'מתמטיקה',          teachers:[{teacher:'אושר אהרוני'}], topic:'סטטיסטיקה למתקדמים', assignments:[{url:A.mathOsherStats_pres,label:'מצגת'},{url:A.mathOsherStats_task,label:'מטלה'}] },
+      { time:'11:50–12:30', subject:'עברית',             teachers:[{teacher:'מירב בטיטו'}] },
+    ],
+    'י1': [
+      { time:'10:00–10:45', subject:'חינוך + ספרות',    teachers:[{teacher:'רעיה יצחקי'}], assignments:[{url:A.litRayaTue_pres,label:'מצגת ספרות'}] },
+      { time:'10:55–11:40', subject:'עברית',             teachers:[{teacher:'מירב בטיטו'}] },
+      { time:'11:50–12:30', subject:'מגמות',             teachers:[{teacher:'פרלה שאזו', track:'עיצוב שיער'},{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}], topic:'מערכת הזרקת דלק', assignments:[{url:A.megamotPerlaTue_pres,label:'מצגת עיצוב שיער'},{url:A.megamotPerlaTue_task,label:'מטלה עיצוב שיער'},{url:A.megamotYossiTue_pres,label:'מצגת אוטוטרוניקה'},{url:A.megamotYossiTue_task,label:'מטלה אוטוטרוניקה'},{url:A.megamotShaiTue_task,label:'מטלה מחשבים'}] },
+    ],
+    'י2': [
+      { time:'10:00–10:45', subject:'חינוך + עברית',    teachers:[{teacher:'אופירה מלכה'}], topic:'זכויות אזרח בדמוקרטיה', assignments:[{url:A.civicsMosheTue_pres,label:'מצגת אזרחות'},{url:A.civicsMosheTue_task,label:'מטלה אזרחות'},{url:'https://forms.gle/wggZm7WNdfRPERPz8',label:'מטלה חינוך'}] },
+      { time:'10:55–11:40', subject:'מתמטיקה',          teachers:[{teacher:'נעמה קוסטן'}] },
+      { time:'11:50–12:30', subject:'מגמות',             teachers:[{teacher:'פרלה שאזו', track:'עיצוב שיער'},{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}], topic:'מערכת הזרקת דלק', assignments:[{url:A.megamotPerlaTue_pres,label:'מצגת עיצוב שיער'},{url:A.megamotPerlaTue_task,label:'מטלה עיצוב שיער'},{url:A.megamotYossiTue_pres,label:'מצגת אוטוטרוניקה'},{url:A.megamotYossiTue_task,label:'מטלה אוטוטרוניקה'},{url:A.megamotShaiTue_task,label:'מטלה מחשבים'}] },
+    ],
+    'י3': [
+      { time:'10:00–10:45', subject:'חינוך + עברית',    teachers:[{teacher:'מירב בטיטו'}] },
+      { time:'10:55–11:40', subject:'ספרות',             teachers:[{teacher:'רעיה יצחקי'}] },
+      { time:'11:50–12:30', subject:'מגמות',             teachers:[{teacher:'פרלה שאזו', track:'עיצוב שיער'},{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}], topic:'מערכת הזרקת דלק', assignments:[{url:A.megamotPerlaTue_pres,label:'מצגת עיצוב שיער'},{url:A.megamotPerlaTue_task,label:'מטלה עיצוב שיער'},{url:A.megamotYossiTue_pres,label:'מצגת אוטוטרוניקה'},{url:A.megamotYossiTue_task,label:'מטלה אוטוטרוניקה'},{url:A.megamotShaiTue_task,label:'מטלה מחשבים'}] },
+    ],
+    'יא1': [
+      { time:'10:00–10:45', subject:'עברית',             teachers:[{teacher:'אפרת בר אשר'}], topic:'דרכי תצורה', assignment: A.hebrewEfratTue_task },
+      { time:'10:55–11:40', subject:'אנגלית',            teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'},{teacher:'בת שבע אדלר'}], assignments:[{url:A.engMarianTue_pres,label:'מצגת מריאן'},{url:A.engMarianTue_task,label:'מטלה מריאן'},{url:A.engYehuditTue_pres,label:'מצגת יהודית'},{url:A.engYehuditTue_task,label:'מטלה יהודית'},{url:A.engBatshevaTue_pres,label:'מצגת בת שבע'},{url:A.engBatshevaTue_task,label:'מטלה בת שבע'}] },
+      { time:'11:50–12:30', subject:'תנ"ך',              teachers:[{teacher:'אליאל קוסקאס'}], assignments:[{url:A.tanachEliel_pres,label:'מצגת'},{url:A.tanachElielTue_task,label:'מטלה'}] },
+    ],
+    'יא2': [
+      { time:'10:00–10:45', subject:'מתמטיקה',          teachers:[{teacher:'נעמה קוסטן'}], topic:'הסתברות', assignment: A.mathNaamaTue_task },
+      { time:'10:55–11:40', subject:'חינוך תעבורתי',    teachers:[{teacher:'מנו דהאן'}], topic:'אלכוהול', assignments:[{url:A.trafManu_pres,label:'מצגת'},{url:A.trafManu_task,label:'מטלה'}] },
+      { time:'11:50–12:30', subject:'עברית',             teachers:[{teacher:'אושר אהרוני'}], topic:'כתיבה ממזגת', assignments:[{url:A.hebrewOsher_pres,label:'מצגת'},{url:A.hebrewOsherTue_task,label:'מטלה'}] },
+    ],
+    'יא3': [
+      { time:'10:00–10:45', subject:'תנ"ך',              teachers:[{teacher:'אליאל קוסקאס'}], assignments:[{url:A.tanachEliel_pres,label:'מצגת'},{url:A.tanachElielTue_task,label:'מטלה'}] },
+      { time:'10:55–11:40', subject:'אנגלית',            teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'},{teacher:'בת שבע אדלר'}], assignments:[{url:A.engYehuditTue_pres,label:'מצגת יהודית'},{url:A.engYehuditTue_task,label:'מטלה יהודית'},{url:A.engBatshevaTue_pres,label:'מצגת בת שבע'},{url:A.engBatshevaTue_task,label:'מטלה בת שבע'}] },
+      { time:'11:50–12:30', subject:'עברית',             teachers:[{teacher:'אפרת בר אשר'}] },
+    ],
+    'יב1': [
+      { time:'10:00–10:45', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'10:55–11:40', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'11:50–12:30', subject:'אנגלית',            teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'},{teacher:'בת שבע אדלר'}] },
+    ],
+    'יב2': [
+      { time:'10:00–10:45', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'10:55–11:40', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'11:50–12:30', subject:'אנגלית',            teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'},{teacher:'בת שבע אדלר'}] },
+    ],
+    'יב3': [
+      { time:'10:00–10:45', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'10:55–11:40', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'11:50–12:30', subject:'אנגלית',            teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'},{teacher:'בת שבע אדלר'}] },
+    ],
+  },
+  3: { // יום רביעי
+    'ט1': [
+      { time:'10:00–10:45', subject:'חינוך + אזרחות',  teachers:[{teacher:'משה צברי'}] },
+      { time:'10:55–11:40', subject:'מתמטיקה',          teachers:[{teacher:'אושר אהרוני'}] },
+      { time:'11:50–12:30', subject:'עברית',             teachers:[{teacher:'מירב בטיטו'}] },
+    ],
+    'ט2': [
+      { time:'10:00–10:45', subject:'חינוך + עברית',    teachers:[{teacher:'אושר אהרוני'}] },
+      { time:'10:55–11:40', subject:'מתמטיקה',          teachers:[{teacher:'אושר אהרוני'}] },
+      { time:'11:50–12:30', subject:'עברית',             teachers:[{teacher:'מירב בטיטו'}] },
+    ],
+    'י1': [
+      { time:'10:00–10:45', subject:'חינוך + ספרות',    teachers:[{teacher:'רעיה יצחקי'}] },
+      { time:'10:55–11:40', subject:'עברית',             teachers:[{teacher:'מירב בטיטו'}] },
+      { time:'11:50–12:30', subject:'מגמות',             teachers:[{teacher:'פרלה שאזו', track:'עיצוב שיער'},{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+    ],
+    'י2': [
+      { time:'10:00–10:45', subject:'חינוך + עברית',    teachers:[{teacher:'אופירה מלכה'}] },
+      { time:'10:55–11:40', subject:'מתמטיקה',          teachers:[{teacher:'נעמה קוסטן'}] },
+      { time:'11:50–12:30', subject:'מגמות',             teachers:[{teacher:'פרלה שאזו', track:'עיצוב שיער'},{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+    ],
+    'י3': [
+      { time:'10:00–10:45', subject:'חינוך + עברית',    teachers:[{teacher:'מירב בטיטו'}] },
+      { time:'10:55–11:40', subject:'ספרות',             teachers:[{teacher:'רעיה יצחקי'}] },
+      { time:'11:50–12:30', subject:'מגמות',             teachers:[{teacher:'פרלה שאזו', track:'עיצוב שיער'},{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+    ],
+    'יא1': [
+      { time:'10:00–10:45', subject:'עברית',             teachers:[{teacher:'אפרת בר אשר'}] },
+      { time:'10:55–11:40', subject:'אנגלית',            teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'},{teacher:'בת שבע אדלר'}] },
+      { time:'11:50–12:30', subject:'תנ"ך',              teachers:[{teacher:'אליאל קוסקאס'}] },
+    ],
+    'יא2': [
+      { time:'10:00–10:45', subject:'מתמטיקה',          teachers:[{teacher:'נעמה קוסטן'}] },
+      { time:'10:55–11:40', subject:'חינוך תעבורתי',    teachers:[{teacher:'מנו דהאן'}] },
+      { time:'11:50–12:30', subject:'עברית',             teachers:[{teacher:'אושר אהרוני'}] },
+    ],
+    'יא3': [
+      { time:'10:00–10:45', subject:'תנ"ך',              teachers:[{teacher:'אליאל קוסקאס'}] },
+      { time:'10:55–11:40', subject:'אנגלית',            teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'},{teacher:'בת שבע אדלר'}] },
+      { time:'11:50–12:30', subject:'עברית',             teachers:[{teacher:'אפרת בר אשר'}] },
+    ],
+    'יב1': [
+      { time:'10:00–10:45', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'10:55–11:40', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'11:50–12:30', subject:'אנגלית',            teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'},{teacher:'בת שבע אדלר'}] },
+    ],
+    'יב2': [
+      { time:'10:00–10:45', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'10:55–11:40', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'11:50–12:30', subject:'אנגלית',            teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'},{teacher:'בת שבע אדלר'}] },
+    ],
+    'יב3': [
+      { time:'10:00–10:45', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'10:55–11:40', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'11:50–12:30', subject:'אנגלית',            teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'},{teacher:'בת שבע אדלר'}] },
+    ],
+  },
+  4: { // יום חמישי
+    'ט1': [
+      { time:'10:00–10:45', subject:'חינוך + אזרחות',  teachers:[{teacher:'משה צברי'}] },
+      { time:'10:55–11:40', subject:'מתמטיקה',          teachers:[{teacher:'אושר אהרוני'}] },
+      { time:'11:50–12:30', subject:'עברית',             teachers:[{teacher:'מירב בטיטו'}] },
+    ],
+    'ט2': [
+      { time:'10:00–10:45', subject:'חינוך + עברית',    teachers:[{teacher:'אושר אהרוני'}] },
+      { time:'10:55–11:40', subject:'מתמטיקה',          teachers:[{teacher:'אושר אהרוני'}] },
+      { time:'11:50–12:30', subject:'עברית',             teachers:[{teacher:'מירב בטיטו'}] },
+    ],
+    'י1': [
+      { time:'10:00–10:45', subject:'חינוך + ספרות',    teachers:[{teacher:'רעיה יצחקי'}] },
+      { time:'10:55–11:40', subject:'עברית',             teachers:[{teacher:'מירב בטיטו'}] },
+      { time:'11:50–12:30', subject:'מגמות',             teachers:[{teacher:'פרלה שאזו', track:'עיצוב שיער'},{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+    ],
+    'י2': [
+      { time:'10:00–10:45', subject:'חינוך + עברית',    teachers:[{teacher:'אופירה מלכה'}] },
+      { time:'10:55–11:40', subject:'מתמטיקה',          teachers:[{teacher:'נעמה קוסטן'}] },
+      { time:'11:50–12:30', subject:'מגמות',             teachers:[{teacher:'פרלה שאזו', track:'עיצוב שיער'},{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+    ],
+    'י3': [
+      { time:'10:00–10:45', subject:'חינוך + עברית',    teachers:[{teacher:'מירב בטיטו'}] },
+      { time:'10:55–11:40', subject:'ספרות',             teachers:[{teacher:'רעיה יצחקי'}] },
+      { time:'11:50–12:30', subject:'מגמות',             teachers:[{teacher:'פרלה שאזו', track:'עיצוב שיער'},{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+    ],
+    'יא1': [
+      { time:'10:00–10:45', subject:'עברית',             teachers:[{teacher:'אפרת בר אשר'}] },
+      { time:'10:55–11:40', subject:'אנגלית',            teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'},{teacher:'בת שבע אדלר'}] },
+      { time:'11:50–12:30', subject:'תנ"ך',              teachers:[{teacher:'אליאל קוסקאס'}] },
+    ],
+    'יא2': [
+      { time:'10:00–10:45', subject:'מתמטיקה',          teachers:[{teacher:'נעמה קוסטן'}] },
+      { time:'10:55–11:40', subject:'חינוך תעבורתי',    teachers:[{teacher:'מנו דהאן'}] },
+      { time:'11:50–12:30', subject:'עברית',             teachers:[{teacher:'אושר אהרוני'}] },
+    ],
+    'יא3': [
+      { time:'10:00–10:45', subject:'תנ"ך',              teachers:[{teacher:'אליאל קוסקאס'}] },
+      { time:'10:55–11:40', subject:'אנגלית',            teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'},{teacher:'בת שבע אדלר'}] },
+      { time:'11:50–12:30', subject:'עברית',             teachers:[{teacher:'אפרת בר אשר'}] },
+    ],
+    'יב1': [
+      { time:'10:00–10:45', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'10:55–11:40', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'11:50–12:30', subject:'אנגלית',            teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'},{teacher:'בת שבע אדלר'}] },
+    ],
+    'יב2': [
+      { time:'10:00–10:45', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'10:55–11:40', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'11:50–12:30', subject:'אנגלית',            teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'},{teacher:'בת שבע אדלר'}] },
+    ],
+    'יב3': [
+      { time:'10:00–10:45', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'10:55–11:40', subject:'מגמות',             teachers:[{teacher:'יוסי רובבשי', track:'אוטוטרוניקה'},{teacher:'שי בגלר', track:'מחשבים'}] },
+      { time:'11:50–12:30', subject:'אנגלית',            teachers:[{teacher:'מריאן זרצקי'},{teacher:'יהודית בן גיגי'},{teacher:'בת שבע אדלר'}] },
+    ],
+  },
+};
 
-        function render() {
-            // Render tabs
-            const tabsEl = document.getElementById('class-tabs');
-            tabsEl.innerHTML = '';
-            Object.keys(schedule).forEach(cls => {
-                const btn = document.createElement('button');
-                btn.className = 'tab-btn' + (cls === currentClass ? ' active' : '');
-                btn.textContent = cls;
-                btn.onclick = () => { currentClass = cls; render(); };
-                tabsEl.appendChild(btn);
-            });
+const CLASSES  = ['ט1','ט2','י1','י2','י3','יא1','יא2','יא3','יב1','יב2','יב3'];
+const DAYS     = ['ראשון','שני','שלישי','רביעי','חמישי'];
+const DAYS_SUB = ["א'","ב'","ג'","ד'","ה'"];
+const HEB_DAYS   = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+const HEB_MONTHS = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
 
-            // Render lessons
-            const container = document.getElementById('lessons-container');
-            container.innerHTML = '';
+// ════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════
+let currentDay   = 0;
+let currentClass = localStorage.getItem('ort_class') || 'ט1';
 
-            (schedule[currentClass] || []).forEach(lesson => {
-                const card = document.createElement('div');
-                card.className = 'lesson-card';
+function todayIndex() {
+  const d = new Date().getDay();
+  // getDay(): 0=Sunday,1=Monday,...,5=Friday,6=Saturday
+  // Map to our tabs: 0=ראשון,1=שני,...,4=חמישי
+  if (d === 0) return 0;
+  if (d >= 1 && d <= 4) return d;
+  return 0; // Fri/Sat → show Sunday
+}
 
-                // Teachers HTML
-                const teachersHTML = lesson.teachers.map(t => {
-                    const name = t.teacher || '';
-                    const track = t.track || '';
-                    const link = teacherLinks[name] || '';
-                    return `
-                        <div class="teacher-card">
-                            ${track ? `<span class="track-label">${track}</span>` : ''}
-                            <span class="teacher-name">${name ? 'מורה: ' + name : 'טרם נקבע'}</span>
-                            <a href="${link || '#'}" ${link ? 'target="_blank"' : ''} class="btn ${link ? 'btn-zoom' : 'btn-zoom-disabled'}">
-                                ${zoomIcon} <span>${link ? 'התחברות לזום' : 'אין קישור'}</span>
-                            </a>
-                        </div>`;
-                }).join('');
+// ════════════════════════════════════════════
+// CLOCK
+// ════════════════════════════════════════════
+function pad(n){ return String(n).padStart(2,'0'); }
 
-                // Assignment HTML
-                let assignmentHTML = '';
-                if (lesson.subject !== 'חינוך') {
-                    if (lesson.assignments) {
-                        assignmentHTML = lesson.assignments.map((link, i) =>
-                            `<a href="${link}" target="_blank" class="btn btn-task">${taskIcon} <span>מטלה ${i + 1}</span></a>`
-                        ).join('');
-                    } else if (lesson.assignment) {
-                        assignmentHTML = `<a href="${lesson.assignment}" target="_blank" class="btn btn-task">${taskIcon} <span>מטלה מקוונת</span></a>`;
-                    } else {
-                        assignmentHTML = `<a href="#" class="btn btn-task-disabled">${taskIcon} <span>אין מטלה</span></a>`;
-                    }
-                }
+function tick() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  document.getElementById('clock-date').textContent =
+    `יום ${HEB_DAYS[now.getDay()]}, ${now.getDate()} ב${HEB_MONTHS[now.getMonth()]}`;
+  refreshChip(now);
+}
 
-                card.innerHTML = `
-                    <div class="lesson-left">
-                        <div class="time-box">
-                            <div class="label">שעה</div>
-                            <div class="time">${lesson.time}</div>
-                        </div>
-                        <div class="subject-name">${lesson.subject}</div>
-                    </div>
-                    <div class="lesson-right">
-                        ${teachersHTML}
-                        ${assignmentHTML ? `<div class="assignment-col">${assignmentHTML}</div>` : ''}
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
+function toMins(s){ const[h,m]=s.split(':').map(Number); return h*60+m; }
 
-        render();
-    </script>
+// Use first lesson times for period chip
+function refreshChip(now) {
+  const chip = document.getElementById('period-chip');
+  const mins = now.getHours()*60 + now.getMinutes();
+  const dayData = SCHEDULE[0]; // use Sunday data for time reference
+  const firstClass = Object.values(dayData)[0] || [];
+  for (const lesson of firstClass) {
+    const [start,end] = lesson.time.split('–').map(toMins);
+    if (mins>=start && mins<end) { chip.textContent=`📚 שיעור עכשיו`; return; }
+  }
+  chip.textContent = '📋 לחץ לבחירת כיתה';
+}
+
+// ════════════════════════════════════════════
+// DAY TABS
+// ════════════════════════════════════════════
+function renderDayTabs() {
+  const today = todayIndex();
+  const el    = document.getElementById('day-tabs');
+  el.innerHTML = '';
+  DAYS.forEach((name,i) => {
+    const btn = document.createElement('button');
+    btn.className = 'day-tab' + (i===currentDay?' active':'');
+    const dot = i===today ? '<span class="today-dot"></span>' : '';
+    const hasData = SCHEDULE[i] && Object.keys(SCHEDULE[i]).length > 0;
+    btn.innerHTML = `${dot}${name}<span class="day-tab-sub">יום ${DAYS_SUB[i]}${hasData?'':' ●'}</span>`;
+    if (!hasData) btn.title = 'אין נתונים ליום זה';
+    btn.onclick = () => { currentDay=i; renderDayTabs(); renderLessons(); };
+    el.appendChild(btn);
+  });
+}
+
+// ════════════════════════════════════════════
+// CLASS TABS
+// ════════════════════════════════════════════
+function renderClassTabs() {
+  const el = document.getElementById('class-tabs');
+  el.innerHTML = '';
+  CLASSES.forEach(cls => {
+    const btn = document.createElement('button');
+    btn.className = 'class-btn' + (cls===currentClass?' active':'');
+    btn.textContent = cls;
+    btn.onclick = () => {
+      currentClass = cls;
+      localStorage.setItem('ort_class', cls);
+      renderClassTabs();
+      renderLessons();
+    };
+    el.appendChild(btn);
+  });
+}
+
+// ════════════════════════════════════════════
+// LESSON CARDS
+// ════════════════════════════════════════════
+function renderLessons() {
+  const area = document.getElementById('lessons-area');
+  area.innerHTML = '';
+
+  const dayData = SCHEDULE[currentDay] || {};
+  const lessons = dayData[currentClass];
+
+  if (!lessons || lessons.length === 0) {
+    area.innerHTML = `
+      <div class="no-schedule">
+        <div class="icon">📅</div>
+        <div>אין מערכת שעות ליום ${DAYS[currentDay]} לכיתה ${currentClass}</div>
+      </div>`;
+    return;
+  }
+
+  lessons.forEach((lesson, idx) => {
+    const card = document.createElement('div');
+    card.className = 'lesson-card';
+    card.style.animationDelay = `${idx*0.07}s`;
+
+    // Stripe
+    const stripe = document.createElement('div');
+    stripe.className = 'lesson-stripe';
+
+    // Time
+    const [startStr, endStr] = lesson.time.split('–');
+    const timeDiv = document.createElement('div');
+    timeDiv.className = 'lesson-time';
+    timeDiv.innerHTML = `<div class="tl">שעה</div><div class="tm">${startStr}<br>${endStr||''}</div>`;
+
+    // Body
+    const body = document.createElement('div');
+    body.className = 'lesson-body';
+
+    const subjDiv = document.createElement('div');
+    subjDiv.className = 'lesson-subject';
+    subjDiv.textContent = lesson.subject;
+    body.appendChild(subjDiv);
+
+    // Right: teacher boxes + assignment
+    const right = document.createElement('div');
+    right.className = 'lesson-right';
+
+    lesson.teachers.forEach(t => {
+      const teacherObj = findTeacher(t.teacher);
+      const box = document.createElement('div');
+      box.className = 'teacher-box';
+
+      if (t.track) {
+        const track = document.createElement('div');
+        track.className = 'teacher-track';
+        track.textContent = t.track;
+        box.appendChild(track);
+      }
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'teacher-name-lbl';
+      nameEl.textContent = t.teacher ? `מורה: ${t.teacher}` : 'טרם נקבע';
+      box.appendChild(nameEl);
+
+      const btnRow = document.createElement('div');
+      btnRow.className = 'btn-row';
+
+      // Zoom/Meet button
+      if (teacherObj && teacherObj.url) {
+        const a = document.createElement('a');
+        a.href = teacherObj.url; a.target='_blank'; a.rel='noopener';
+        a.className = `lc-btn ${teacherObj.type}`;
+        a.innerHTML = (teacherObj.type==='zoom') ? '📹 כניסה לזום' : '📱 כניסה למיט';
+        btnRow.appendChild(a);
+      } else {
+        const span = document.createElement('span');
+        span.className = 'lc-btn no-lnk';
+        span.textContent = 'אין קישור';
+        btnRow.appendChild(span);
+      }
+
+      box.appendChild(btnRow);
+      right.appendChild(box);
+    });
+
+    // Assignment buttons (only for non-חינוך lessons)
+    if (lesson.subject !== 'חינוך') {
+      const assignBox = document.createElement('div');
+      assignBox.className = 'teacher-box';
+      assignBox.style.minWidth = '155px';
+      const aLabel = document.createElement('div');
+      aLabel.className = 'teacher-name-lbl';
+      aLabel.textContent = '📋 מטלה מקוונת';
+      assignBox.appendChild(aLabel);
+
+      // Show topic if available
+      if (lesson.topic) {
+        const topicEl = document.createElement('div');
+        topicEl.className = 'teacher-track';
+        topicEl.textContent = lesson.topic;
+        assignBox.appendChild(topicEl);
+      }
+
+      const aBtnRow = document.createElement('div');
+      aBtnRow.className = 'btn-row';
+
+      if (lesson.assignments) {
+        lesson.assignments.forEach((item, i) => {
+          // Support both old format (string) and new format ({url, label})
+          const link  = (typeof item === 'string') ? item : item.url;
+          const label = (typeof item === 'string') ? `מטלה ${i+1}` : item.label;
+          const a = document.createElement('a');
+          a.href=link; a.target='_blank'; a.rel='noopener';
+          a.className = i===0 ? 'lc-btn task' : 'lc-btn task2';
+          a.textContent = label;
+          aBtnRow.appendChild(a);
+        });
+      } else if (lesson.assignment) {
+        const a = document.createElement('a');
+        a.href=lesson.assignment; a.target='_blank'; a.rel='noopener';
+        a.className = 'lc-btn task';
+        a.textContent = 'פתח מטלה';
+        aBtnRow.appendChild(a);
+      } else {
+        const span = document.createElement('span');
+        span.className = 'lc-btn no-task';
+        span.textContent = 'אין מטלה';
+        aBtnRow.appendChild(span);
+      }
+
+      assignBox.appendChild(aBtnRow);
+      right.appendChild(assignBox);
+    }
+
+    body.appendChild(right);
+    card.append(stripe, timeDiv, body);
+    area.appendChild(card);
+  });
+}
+
+// ════════════════════════════════════════════
+// TEACHER DIRECTORY
+// ════════════════════════════════════════════
+function renderTeachers() {
+  const el = document.getElementById('teacher-dir');
+  el.innerHTML = '';
+  TEACHERS.forEach(t => {
+    const row = document.createElement('div');
+    row.className = 't-row';
+    const name = document.createElement('span');
+    name.className='t-name'; name.textContent=t.name;
+    row.appendChild(name);
+    if (t.url) {
+      const a = document.createElement('a');
+      a.href=t.url; a.target='_blank'; a.rel='noopener';
+      a.className=`t-link ${t.type}`;
+      a.textContent=(t.type==='zoom')?'📹 זום':'📱 מיט';
+      row.appendChild(a);
+    } else {
+      const s=document.createElement('span'); s.className='t-no-link'; s.textContent='אין קישור';
+      row.appendChild(s);
+    }
+    el.appendChild(row);
+  });
+}
+
+// ════════════════════════════════════════════
+// TASKS
+// ════════════════════════════════════════════
+const TASKS_KEY = 'ort_tasks_v1';
+function getTasks()     { try{return JSON.parse(localStorage.getItem(TASKS_KEY))||[];}catch{return[];} }
+function saveTasks(arr) { localStorage.setItem(TASKS_KEY,JSON.stringify(arr)); }
+
+function renderTasks() {
+  const tasks=getTasks(), el=document.getElementById('tasks-list');
+  el.innerHTML='';
+  if (!tasks.length){ el.innerHTML='<p class="no-tasks">אין מטלות כרגע ✓</p>'; return; }
+  tasks.forEach(task=>{
+    const row=document.createElement('div'); row.className='task-row';
+    const chk=document.createElement('div'); chk.className='task-chk'+(task.done?' on':'');
+    chk.textContent=task.done?'✓':''; chk.onclick=()=>toggleTask(task.id);
+    const txt=document.createElement('span'); txt.className='task-txt'+(task.done?' done':'');
+    txt.textContent=task.text;
+    const del=document.createElement('button'); del.className='task-x'; del.textContent='✕';
+    del.onclick=()=>deleteTask(task.id);
+    row.append(chk,txt,del); el.appendChild(row);
+  });
+}
+function addTask(){
+  const inp=document.getElementById('task-inp'), text=inp.value.trim();
+  if(!text)return;
+  const tasks=getTasks(); tasks.push({id:Date.now(),text,done:false});
+  saveTasks(tasks); renderTasks(); inp.value=''; inp.focus();
+}
+function toggleTask(id){ const t=getTasks(), item=t.find(x=>x.id===id); if(item){item.done=!item.done;saveTasks(t);renderTasks();} }
+function deleteTask(id){ saveTasks(getTasks().filter(x=>x.id!==id)); renderTasks(); }
+document.getElementById('task-inp').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+function init() {
+  currentDay = todayIndex();
+  tick(); setInterval(tick, 1000);
+  renderDayTabs();
+  renderClassTabs();
+  renderLessons();
+  renderTeachers();
+  renderTasks();
+}
+init();
+</script>
 </body>
 </html>
